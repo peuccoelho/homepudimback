@@ -69,11 +69,11 @@ app.post("/api/pagar", async (req, res) => {
         items,
         payer: {
           name: pedido.cliente,
-          email: "teste@email.com"
+          email: "contatopedroccoelho@gmail.com"
         },
         back_urls: {
-          success: "https://papudim.com.br/pagamento-sucesso.html",
-          failure: "https://papudim.com.br/pagamento-erro.html"
+          success: "/public/frontend/pagamento-sucesso.html",
+          failure: "/public/frontend/pagamento-erro.html",
         },
         auto_return: "approved",
         notification_url: "http://localhost:3000/api/pagamento-webhook",
