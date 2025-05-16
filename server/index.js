@@ -17,7 +17,7 @@ const PORT = 3000;
 const SECRET_KEY = "papudimsecreto123";
 const DB_FILE = path.join(__dirname, "pedidos.json");
 
-// ✅ Configuração correta do Mercado Pago SDK v2
+// Mercado Pago SDK v2
 const mp = new MercadoPagoConfig({ accessToken: process.env.accessToken });
 const preference = new Preference(mp);
 const payment = new Payment(mp);
@@ -29,7 +29,7 @@ if (!fs.existsSync(DB_FILE)) {
   fs.writeFileSync(DB_FILE, "[]");
 }
 
-// Login simples com JWT
+// Login
 app.post("/api/login", (req, res) => {
   const { senha } = req.body;
   if (senha === "papudim123") {
@@ -52,7 +52,7 @@ function autenticar(req, res, next) {
   }
 }
 
-// ✅ Criar pagamento Mercado Pago
+// Pagamento Mercado Pago
 app.post("/api/pagar", async (req, res) => {
   const pedido = req.body;
 
@@ -88,7 +88,7 @@ app.post("/api/pagar", async (req, res) => {
   }
 });
 
-// ✅ Webhook: Confirma pagamento e envia WhatsApp
+// Webhook, Confirma pagamento e envia WhatsApp
 app.post("/api/pagamento-webhook", async (req, res) => {
   const { data, type } = req.body;
   if (type !== "payment") return res.sendStatus(200);
@@ -109,7 +109,7 @@ app.post("/api/pagamento-webhook", async (req, res) => {
   res.sendStatus(200);
 });
 
-// Envia mensagem via CallMeBot
+// CallMeBot
 function enviarWhatsApp(mensagem) {
   const numero = "5581SEUNUMERO"; // Ex: 558199999999
   const apikey = "suachave";      // Gere no site do CallMeBot
@@ -126,13 +126,13 @@ function enviarWhatsApp(mensagem) {
     .catch(err => console.error("Erro ao enviar WhatsApp:", err));
 }
 
-// Admin: listar pedidos
+// Admin, listar pedidos
 app.get("/api/pedidos", autenticar, (req, res) => {
   const pedidos = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
   res.json(pedidos);
 });
 
-// Admin: alterar status
+// Admin, alterar status
 app.post("/api/pedido-status", autenticar, (req, res) => {
   const { index, status } = req.body;
   const pedidos = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
