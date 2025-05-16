@@ -1,0 +1,31 @@
+[
+  {
+    "cliente": "Pedro Coelho",
+    "pagamento": "Pix",
+    "itens": [
+      {
+        "nome": "Pudim de Café",
+        "preco": 8.6,
+        "peso": "120g",
+        "quantidade": 20
+      }
+    ],
+    "total": 172,
+    "data": "2025-05-13T19:20:23.332Z"
+  },
+  {
+    "cliente": "Pedro Coelho",
+    "pagamento": "Pix",
+    "itens": [
+      {
+        "nome": "Pudim Tradicional",
+        "preco": 7.9,
+        "peso": "120g",
+        "quantidade": 20
+      }
+    ],
+    "total": 158,
+    "data": "2025-05-14T16:52:06.089Z",
+    "status": "Recebido"
+  }
+]

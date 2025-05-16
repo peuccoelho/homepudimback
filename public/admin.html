@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel Admin - Papudim</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        background-color: #f9f4ef;
+        color: #3e2c23;
+      }
+    </style>
+  </head>
+  <body class="p-6">
+    <div id="loginArea" class="max-w-sm mx-auto mt-24">
+      <h1 class="text-2xl font-bold mb-4">Login Admin</h1>
+      <input
+        id="senhaInput"
+        type="password"
+        placeholder="Digite a senha"
+        class="w-full px-4 py-2 border rounded mb-2"
+      />
+      <button
+        onclick="verificarSenha()"
+        class="w-full bg-[#a47551] hover:bg-[#916546] text-white px-4 py-2 rounded"
+      >
+        Entrar
+      </button>
+      <p id="erroSenha" class="text-red-600 text-sm mt-2 hidden">
+        Senha incorreta.
+      </p>
+    </div>
+
+    <div id="painelArea" class="hidden">
+      <h1 class="text-2xl font-bold mb-4">📋 Pedidos Recebidos</h1>
+
+      <div class="flex flex-wrap gap-4 mb-4">
+        <div class="flex items-center gap-2">
+          <label for="filtroData" class="text-sm">📅 Filtrar por data:</label>
+          <input type="date" id="filtroData" class="border px-2 py-1 rounded" />
+        </div>
+        <button
+          onclick="exportarCSV()"
+          class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          📤 Exportar CSV
+        </button>
+      </div>
+
+      <div id="status" class="mb-4 text-sm text-gray-600">
+        Carregando pedidos...
+      </div>
+
+      <table class="min-w-full bg-white rounded-xl shadow overflow-hidden">
+        <thead class="bg-[#a47551] text-white">
+          <tr>
+            <th class="p-3 text-left">Cliente</th>
+            <th class="p-3 text-left">Pagamento</th>
+            <th class="p-3 text-left">Total</th>
+            <th class="p-3 text-left">Data</th>
+            <th class="p-3 text-left">Itens</th>
+            <th class="p-3 text-left">Status</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaPedidos" class="divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+
+    <script>
+      let token = null;
+      let pedidosOriginais = [];
+
+      async function verificarSenha() {
+        const senha = document.getElementById("senhaInput").value;
+        const erro = document.getElementById("erroSenha");
+        try {
+          const res = await fetch("http://localhost:3000/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ senha }),
+          });
+          if (!res.ok) throw new Error("Senha incorreta");
+
+          const data = await res.json();
+          token = data.token;
+          sessionStorage.setItem("token", token);
+
+          document.getElementById("loginArea").classList.add("hidden");
+          document.getElementById("painelArea").classList.remove("hidden");
+          carregarPedidos();
+        } catch (err) {
+          erro.classList.remove("hidden");
+        }
+      }
+
+      async function carregarPedidos() {
+        const statusDiv = document.getElementById("status");
+        const tabela = document.getElementById("tabelaPedidos");
+        tabela.innerHTML = "";
+        try {
+          const res = await fetch("http://localhost:3000/api/pedidos", {
+            headers: {
+              Authorization: `Bearer ${
+                token || sessionStorage.getItem("token")
+              }`,
+            },
+          });
+          if (!res.ok) throw new Error("Não autorizado");
+
+          const pedidos = await res.json();
+          pedidosOriginais = pedidos.reverse();
+          statusDiv.textContent = `Total de pedidos: ${pedidos.length}`;
+          renderizarTabela(pedidosOriginais);
+        } catch (err) {
+          statusDiv.textContent = "Erro ao carregar pedidos.";
+          console.error(err);
+        }
+      }
+
+      function renderizarTabela(pedidos) {
+        const tabela = document.getElementById("tabelaPedidos");
+        tabela.innerHTML = "";
+        pedidos.forEach((p, index) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+          <td class="p-3 font-medium">${p.cliente}</td>
+          <td class="p-3">${p.pagamento}</td>
+          <td class="p-3">R$ ${p.total.toFixed(2).replace(".", ",")}</td>
+          <td class="p-3 text-sm">${new Date(p.data).toLocaleString()}</td>
+          <td class="p-3 text-sm">
+            <ul class="list-disc ml-4 space-y-1">
+              ${p.itens
+                .map((i) => `<li>${i.nome} x${i.quantidade}</li>`)
+                .join("")}
+            </ul>
+          </td>
+          <td class="p-3">
+            <select onchange="atualizarStatus(${index}, this.value)" class="border rounded px-2 py-1">
+              <option ${
+                p.status === "Recebido" ? "selected" : ""
+              }>Recebido</option>
+              <option ${
+                p.status === "Em preparo" ? "selected" : ""
+              }>Em preparo</option>
+              <option ${p.status === "Pronto" ? "selected" : ""}>Pronto</option>
+              <option ${
+                p.status === "Entregue" ? "selected" : ""
+              }>Entregue</option>
+            </select>
+          </td>`;
+          tabela.appendChild(tr);
+        });
+      }
+
+      async function atualizarStatus(index, novoStatus) {
+        pedidosOriginais[index].status = novoStatus;
+        try {
+          await fetch("http://localhost:3000/api/pedido-status", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${
+                token || sessionStorage.getItem("token")
+              }`,
+            },
+            body: JSON.stringify({ index, status: novoStatus }),
+          });
+        } catch (error) {
+          console.error("Erro ao atualizar status no servidor:", error);
+        }
+      }
+
+      document
+        .getElementById("filtroData")
+        ?.addEventListener("change", function () {
+          const dataSelecionada = this.value;
+          if (!dataSelecionada) return renderizarTabela(pedidosOriginais);
+          const filtrados = pedidosOriginais.filter(
+            (p) =>
+              new Date(p.data).toISOString().slice(0, 10) === dataSelecionada
+          );
+          renderizarTabela(filtrados);
+        });
+
+      function exportarCSV() {
+        const linhas = ["Cliente,Pagamento,Total,Data,Itens,Status"];
+        pedidosOriginais.forEach((p) => {
+          const itens = p.itens
+            .map((i) => `${i.nome} x${i.quantidade}`)
+            .join(" | ");
+          const linha = `"${p.cliente}","${p.pagamento}","${p.total.toFixed(
+            2
+          )}","${new Date(p.data).toLocaleString()}","${itens}","${
+            p.status || "Recebido"
+          }"`;
+          linhas.push(linha);
+        });
+        const blob = new Blob([linhas.join("\n")], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `pedidos_papudim.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    </script>
+  </body>
+</html>

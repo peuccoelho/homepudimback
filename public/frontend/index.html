@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Papudim</title>
+    <link rel="icon" href="papudimlogo.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="script.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Quicksand", sans-serif;
+      }
+
+      @keyframes fade-in {
+        0% {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-fade-in {
+        animation: fade-in 0.6s ease-out forwards;
+      }
+    </style>
+  </head>
+  <body class="bg-[#f5f0eb] text-[#5c3b1e] px-4 py-6 sm:px-6">
+    <div
+      class="flex flex-col items-center justify-center gap-3 mb-10 text-center"
+    >
+      <img
+        src="papudimlogo.png"
+        alt="Logo"
+        class="w-24 h-24 rounded-full animate-fade-in"
+      />
+      <h1 class="text-4xl font-bold tracking-wide animate-fade-in">Papudim</h1>
+      <p class="italic text-lg animate-fade-in">Pudim baiano de respeito! 🍮</p>
+    </div>
+
+    <div class="max-w-xl mx-auto text-center space-y-6">
+      <p class="text-base sm:text-lg">
+        Bem-vindo ao Papudim, onde você encontra os pudins mais deliciosos de
+        Salvador! Trabalhamos por encomenda e com muito carinho para adoçar seu
+        dia.
+      </p>
+
+      <div class="flex flex-col items-center gap-4 w-full">
+        <a
+          href="cardapio.html"
+          class="w-full sm:w-2/3 bg-[#a47551] hover:bg-[#916546] text-white px-6 py-3 rounded-xl text-lg font-semibold transition"
+        >
+          Ver Cardápio
+        </a>
+
+        <button
+          id="toggleComoFunciona"
+          class="w-full sm:w-2/3 bg-[#a47551] hover:bg-[#916546] text-white px-6 py-3 rounded-xl text-lg font-semibold transition"
+        >
+          Como Funciona
+        </button>
+
+        <button
+          id="toggleFAQ"
+          class="w-full sm:w-2/3 bg-[#a47551] hover:bg-[#916546] text-white px-6 py-3 rounded-xl text-lg font-semibold transition"
+        >
+          FAQ
+        </button>
+      </div>
+
+      <section
+        id="comoFuncionaSection"
+        class="hidden mt-4 text-left space-y-4 animate-fade-in"
+      >
+        <h2 class="text-2xl font-bold border-b border-[#c9b8a2] pb-2">
+          Como Funciona
+        </h2>
+        <ul class="list-disc ml-6 text-base text-[#5c3b1e] space-y-1">
+          <li>Escolha seus pudins favoritos no cardápio</li>
+          <li>Adicione ao carrinho e preencha seu nome</li>
+          <li>Selecione a forma de pagamento</li>
+          <li>Finalize o pedido via WhatsApp (mínimo de 20 unidades)</li>
+          <li>Retirada no local em Salvador/BA</li>
+        </ul>
+      </section>
+
+      <section
+        id="faqSection"
+        class="hidden mt-4 text-left space-y-4 animate-fade-in"
+      >
+        <h2 class="text-2xl font-bold border-b border-[#c9b8a2] pb-2">FAQ</h2>
+        <div>
+          <h3 class="font-semibold">📅 Qual o prazo para pedidos?</h3>
+          <p class="text-[#5c3b1e] text-sm">
+            Pedidos devem ser feitos com 24h de antecedência.
+          </p>
+        </div>
+        <div>
+          <h3 class="font-semibold">🛒 Qual a quantidade mínima?</h3>
+          <p class="text-[#5c3b1e] text-sm">
+            O pedido mínimo é de 20 unidades.
+          </p>
+        </div>
+        <div>
+          <h3 class="font-semibold">📍 Onde ficamos?</h3>
+          <p class="text-[#5c3b1e] text-sm">
+            Rua Lívia Giffoni, 490, Luis Anselmo, Salvador - BA, 40261-050
+          </p>
+        </div>
+        <div>
+          <h3 class="font-semibold">🕘 Qual o horário de funcionamento?</h3>
+          <p class="text-[#5c3b1e] text-sm">Segunda a sexta, das 9h às 17h.</p>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // Alternar visibilidade da seção "Como Funciona" com animação
+      document
+        .getElementById("toggleComoFunciona")
+        .addEventListener("click", () => {
+          const section = document.getElementById("comoFuncionaSection");
+          section.classList.toggle("hidden");
+          section.classList.add("animate-fade-in");
+        });
+
+      // Alternar visibilidade da seção "FAQ" com animação
+      document.getElementById("toggleFAQ").addEventListener("click", () => {
+        const section = document.getElementById("faqSection");
+        section.classList.toggle("hidden");
+        section.classList.add("animate-fade-in");
+      });
+    </script>
+  </body>
+</html>
