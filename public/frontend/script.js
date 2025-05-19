@@ -1,3 +1,4 @@
+// Lista dos itens disponíveis no cardápio
 const cardapio = [
   { nome: "Pudim de Café", preco: 8.6, peso: "120g" },
   { nome: "Pudim de Doce de Leite", preco: 8.9, peso: "120g" },
@@ -136,6 +137,7 @@ function atualizarCarrinho() {
   if (barraProgresso) barraProgresso.style.width = `${progresso}%`;
 }
 
+// ✅ Integração com API Asaas
 btnFinalizar.addEventListener("click", async () => {
   const nome = nomeClienteInput.value.trim();
   const pagamento = formaPagamentoInput.value;
@@ -179,13 +181,13 @@ btnFinalizar.addEventListener("click", async () => {
     const data = await resposta.json();
 
     if (data.url) {
-      window.location.href = data.url; // redireciona para o pagamento do Mercado Pago
+      window.location.href = data.url;
     } else {
       alert("Erro ao redirecionar para pagamento.");
     }
   } catch (erro) {
     console.error("Erro no pagamento:", erro);
-    alert(" Falha na conexão com o servidor.");
+    alert("❌ Falha na conexão com o servidor.");
   }
 });
 

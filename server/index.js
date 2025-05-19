@@ -1,26 +1,27 @@
-import 'dotenv/config';
 import express from "express";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
 import jwt from "jsonwebtoken";
-import { MercadoPagoConfig, Preference, Payment } from "mercadopago";
 import fetch from "node-fetch";
+import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+
+dotenv.config();
+console.log("🔐 Token carregado:", process.env.ASAAS_TOKEN?.slice(0, 10) + "...");
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = 3000;
-const SECRET_KEY = "papudimsecreto123";
+const SECRET_KEY = process.env.JWT_SECRET;
 const DB_FILE = path.join(__dirname, "pedidos.json");
 
-// Mercado Pago SDK v2
-const mp = new MercadoPagoConfig({ accessToken: process.env.accessToken });
-const preference = new Preference(mp);
-const payment = new Payment(mp);
+const ASAAS_TOKEN = process.env.ASAAS_TOKEN;
+const ASAAS_API = "https://sandbox.asaas.com/api/v3";
 
 app.use(cors());
 app.use(express.json());
@@ -47,72 +48,92 @@ function autenticar(req, res, next) {
   try {
     jwt.verify(token, SECRET_KEY);
     next();
-  } catch (err) {
+  } catch {
     res.status(403).json({ erro: "Token inválido" });
   }
 }
 
-// Pagamento Mercado Pago
+// ✅ Criar cobrança com tratamento robusto de erro
 app.post("/api/pagar", async (req, res) => {
   const pedido = req.body;
+  const { cliente, total } = pedido;
 
   try {
-    const items = pedido.itens.map(produto => ({
-      title: produto.nome,
-      quantity: produto.quantidade,
-      unit_price: Number(produto.preco),
-      currency_id: "BRL"
-    }));
-
-    const response = await preference.create({
-      body: {
-        items,
-        payer: {
-          name: pedido.cliente,
-          email: "contatopedroccoelho@gmail.com"
-        },
-        back_urls: {
-          success: "/public/frontend/pagamento-sucesso.html",
-          failure: "/public/frontend/pagamento-erro.html",
-        },
-        auto_return: "approved",
-        notification_url: "http://localhost:3000/api/pagamento-webhook",
-        metadata: pedido
-      }
+    // 1. Criar cliente
+    const clienteRes = await fetch(`${ASAAS_API}/customers`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${ASAAS_TOKEN}`
+      },
+      body: JSON.stringify({
+        name: cliente,
+        email: "teste@email.com",
+        cpfCnpj: "00000000000",
+        phone: "81999999999"
+      })
     });
 
-    res.json({ url: response.init_point });
+    if (!clienteRes.ok) {
+      const erroTexto = await clienteRes.text();
+      throw new Error(`Erro ao criar cliente: ${clienteRes.status} - ${erroTexto}`);
+    }
+
+    const clienteData = await clienteRes.json();
+
+    // 2. Criar cobrança
+    const cobrancaRes = await fetch(`${ASAAS_API}/payments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${ASAAS_TOKEN}`
+      },
+      body: JSON.stringify({
+        customer: clienteData.id,
+        billingType: "PIX",
+        value: Number(total),
+        dueDate: new Date().toISOString().split("T")[0],
+        description: `Pedido de pudins para ${cliente}`,
+        externalReference: JSON.stringify(pedido),
+        callback: "http://localhost:3000/api/pagamento-webhook"
+      })
+    });
+
+    if (!cobrancaRes.ok) {
+      const erroTexto = await cobrancaRes.text();
+      throw new Error(`Erro ao criar cobrança: ${cobrancaRes.status} - ${erroTexto}`);
+    }
+
+    const cobranca = await cobrancaRes.json();
+    res.json({ url: cobranca.invoiceUrl });
+
   } catch (error) {
-    console.error("Erro ao criar pagamento:", error);
-    res.status(500).json({ erro: "Erro ao criar pagamento." });
+    console.error("❌ Erro ao criar cobrança:", error.message);
+    res.status(500).json({ erro: error.message });
   }
 });
 
-// Webhook, Confirma pagamento e envia WhatsApp
+// Webhook de pagamento do Asaas
 app.post("/api/pagamento-webhook", async (req, res) => {
-  const { data, type } = req.body;
-  if (type !== "payment") return res.sendStatus(200);
+  const body = req.body;
 
   try {
-    const pagamento = await payment.get({ id: data.id });
-    const status = pagamento.body.status;
-
-    if (status === "approved") {
-      const metadata = pagamento.body.metadata;
-      const pedidoInfo = `Pedido de ${metadata.cliente}\nTotal: R$ ${Number(metadata.total).toFixed(2)}\nItens: ${metadata.itens.map(i => `${i.nome} x${i.quantidade}`).join(" | ")}`;
-      enviarWhatsApp(`✅ Pagamento confirmado!\n${pedidoInfo}`);
+    if (body.event === "PAYMENT_RECEIVED") {
+      const pedido = JSON.parse(body.payment.externalReference || "{}");
+      const info = `Pedido de ${pedido.cliente}\nTotal: R$ ${Number(pedido.total).toFixed(2)}\nItens: ${pedido.itens.map(i => `${i.nome} x${i.quantidade}`).join(" | ")}`;
+      enviarWhatsApp(`✅ Pagamento recebido!\n${info}`);
     }
   } catch (err) {
-    console.error("Erro ao validar pagamento:", err);
+    console.error("Erro no webhook:", err);
   }
 
   res.sendStatus(200);
 });
 
-// CallMeBot
+// WhatsApp via CallMeBot
 function enviarWhatsApp(mensagem) {
-  const numero = "5581SEUNUMERO"; // Ex: 558199999999
-  const apikey = "suachave";      // Gere no site do CallMeBot
+  const numero = process.env.CALLMEBOT_NUMERO;
+  const apikey = process.env.CALLMEBOT_APIKEY;
 
   if (!numero || !apikey || numero.includes("SEUNUMERO")) {
     console.log("⚠️ WhatsApp não configurado.");
@@ -126,13 +147,13 @@ function enviarWhatsApp(mensagem) {
     .catch(err => console.error("Erro ao enviar WhatsApp:", err));
 }
 
-// Admin, listar pedidos
+// Admin: listar pedidos
 app.get("/api/pedidos", autenticar, (req, res) => {
   const pedidos = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
   res.json(pedidos);
 });
 
-// Admin, alterar status
+// Admin: alterar status
 app.post("/api/pedido-status", autenticar, (req, res) => {
   const { index, status } = req.body;
   const pedidos = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
@@ -144,7 +165,6 @@ app.post("/api/pedido-status", autenticar, (req, res) => {
   res.json({ sucesso: true });
 });
 
-// Inicia servidor
 app.listen(PORT, () => {
   console.log(`✅ Papudim backend rodando em http://localhost:${PORT}`);
 });
