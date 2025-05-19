@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 
 dotenv.config();
-console.log("🔐 Token carregado:", process.env.ASAAS_TOKEN?.slice(0, 10) + "...");
+console.log("Token carregado:", process.env.ASAAS_TOKEN?.slice(0, 10) + "...");
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -53,13 +53,13 @@ function autenticar(req, res, next) {
   }
 }
 
-// ✅ Criar cobrança com tratamento robusto de erro
+// Criar pedido 
 app.post("/api/pagar", async (req, res) => {
   const pedido = req.body;
   const { cliente, total } = pedido;
 
   try {
-    // 1. Criar cliente
+    // Criar cliente
     const clienteRes = await fetch(`${ASAAS_API}/customers`, {
       method: "POST",
       headers: {
@@ -81,7 +81,7 @@ app.post("/api/pagar", async (req, res) => {
 
     const clienteData = await clienteRes.json();
 
-    // 2. Criar cobrança
+    // Criar cobrança
     const cobrancaRes = await fetch(`${ASAAS_API}/payments`, {
       method: "POST",
       headers: {
