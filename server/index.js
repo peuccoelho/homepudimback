@@ -67,11 +67,12 @@ app.post("/api/pagar", async (req, res) => {
         Authorization: `Bearer ${ASAAS_TOKEN}`
       },
       body: JSON.stringify({
-        name: cliente,
-        email: "teste@email.com",
-        cpfCnpj: "00000000000",
-        phone: "81999999999"
-      })
+  name: cliente,
+  email: `${cliente.toLowerCase().replace(/\s/g, "")}@teste.com`,
+  cpfCnpj: "12345678909", 
+  phone: "81988889999"
+})
+
     });
 
     if (!clienteRes.ok) {
