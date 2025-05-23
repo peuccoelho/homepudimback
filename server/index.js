@@ -54,12 +54,14 @@ function autenticar(req, res, next) {
   }
 }
 
-// Criar pedido 
+// Criar pedido
 app.post("/api/pagar", async (req, res) => {
   const pedido = req.body;
   const { cliente, total } = pedido;
 
   try {
+    console.log("➡️ Criando cliente:", cliente);
+
     // Criar cliente
     const clienteRes = await fetch(`${ASAAS_API}/customers`, {
       method: "POST",
@@ -68,20 +70,27 @@ app.post("/api/pagar", async (req, res) => {
         Authorization: `Bearer ${access_token}`
       },
       body: JSON.stringify({
-  name: cliente,
-  email: `${cliente.toLowerCase().replace(/\s/g, "")}@teste.com`,
-  cpfCnpj: "12345678909", 
-  phone: "81988889999"
-})
-
+        name: cliente,
+        email: `${cliente.toLowerCase().replace(/\s/g, "")}@teste.com`,
+        cpfCnpj: "12345678909",
+        phone: "81988889999"
+      })
     });
 
+    const clienteTexto = await clienteRes.text();
+
     if (!clienteRes.ok) {
-      const erroTexto = await clienteRes.text();
-      throw new Error(`Erro ao criar cliente: ${clienteRes.status} - ${erroTexto}`);
+      throw new Error(`Erro ao criar cliente: ${clienteRes.status} - ${clienteTexto}`);
     }
 
-    const clienteData = await clienteRes.json();
+    let clienteData;
+    try {
+      clienteData = JSON.parse(clienteTexto);
+    } catch (e) {
+      throw new Error(`Resposta inválida ao criar cliente: ${clienteTexto}`);
+    }
+
+    console.log("✅ Cliente criado:", clienteData.id);
 
     // Criar cobrança
     const cobrancaRes = await fetch(`${ASAAS_API}/payments`, {
@@ -101,35 +110,26 @@ app.post("/api/pagar", async (req, res) => {
       })
     });
 
+    const cobrancaTexto = await cobrancaRes.text();
+
     if (!cobrancaRes.ok) {
-      const erroTexto = await cobrancaRes.text();
-      throw new Error(`Erro ao criar cobrança: ${cobrancaRes.status} - ${erroTexto}`);
+      throw new Error(`Erro ao criar cobrança: ${cobrancaRes.status} - ${cobrancaTexto}`);
     }
 
-    const cobranca = await cobrancaRes.json();
+    let cobranca;
+    try {
+      cobranca = JSON.parse(cobrancaTexto);
+    } catch (e) {
+      throw new Error(`Resposta inválida ao criar cobrança: ${cobrancaTexto}`);
+    }
+
+    console.log("✅ Cobrança criada:", cobranca.invoiceUrl);
     res.json({ url: cobranca.invoiceUrl });
 
   } catch (error) {
     console.error("❌ Erro ao criar cobrança:", error.message);
     res.status(500).json({ erro: error.message });
   }
-});
-
-// Webhook de pagamento do Asaas
-app.post("/api/pagamento-webhook", async (req, res) => {
-  const body = req.body;
-
-  try {
-    if (body.event === "PAYMENT_RECEIVED") {
-      const pedido = JSON.parse(body.payment.externalReference || "{}");
-      const info = `Pedido de ${pedido.cliente}\nTotal: R$ ${Number(pedido.total).toFixed(2)}\nItens: ${pedido.itens.map(i => `${i.nome} x${i.quantidade}`).join(" | ")}`;
-      enviarWhatsApp(`✅ Pagamento recebido!\n${info}`);
-    }
-  } catch (err) {
-    console.error("Erro no webhook:", err);
-  }
-
-  res.sendStatus(200);
 });
 
 // WhatsApp via CallMeBot
