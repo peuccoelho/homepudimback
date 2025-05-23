@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import fs from "fs";
+import fs, { access } from "fs";
 import path from "path";
 import jwt from "jsonwebtoken";
 import fetch from "node-fetch";
@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 
 dotenv.config();
-console.log("Token carregado:", process.env.ASAAS_TOKEN?.slice(0, 10) + "...");
+console.log("Token carregado:", process.env.access_token?.slice(0, 10) + "...");
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -20,8 +20,9 @@ const PORT = 3000;
 const SECRET_KEY = process.env.JWT_SECRET;
 const DB_FILE = path.join(__dirname, "pedidos.json");
 
-const ASAAS_TOKEN = process.env.ASAAS_TOKEN;
-const ASAAS_API = "https://sandbox.asaas.com/api/v3";
+const access_token = process.env.access_token;
+const ASAAS_API = "https://sandbox.asaas.com/v3";
+
 
 app.use(cors());
 app.use(express.json());
@@ -64,7 +65,7 @@ app.post("/api/pagar", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${ASAAS_TOKEN}`
+        Authorization: `Bearer ${access_token}`
       },
       body: JSON.stringify({
   name: cliente,
@@ -87,7 +88,7 @@ app.post("/api/pagar", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${ASAAS_TOKEN}`
+        Authorization: `Bearer ${access_token}`
       },
       body: JSON.stringify({
         customer: clienteData.id,
