@@ -21,7 +21,7 @@ const SECRET_KEY = process.env.JWT_SECRET;
 const DB_FILE = path.join(__dirname, "pedidos.json");
 
 const access_token = process.env.access_token;
-const ASAAS_API = "https://sandbox.asaas.com/v3";
+const ASAAS_API = "https://api-sandbox.asaas.com/";
 
 
 app.use(cors());
@@ -63,11 +63,11 @@ app.post("/api/pagar", async (req, res) => {
     console.log("➡️ Criando cliente:", cliente);
 
     // Criar cliente
-    const clienteRes = await fetch(`${ASAAS_API}/customers`, {
+    const clienteRes = await fetch(`${ASAAS_API}v3/customers`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${access_token}`
+        'Content-Type': "application/json",
+        access_token: process.env.access_token,
       },
       body: JSON.stringify({
         name: cliente,
@@ -93,23 +93,24 @@ app.post("/api/pagar", async (req, res) => {
     console.log("✅ Cliente criado:", clienteData.id);
 
     // Criar cobrança
-    const cobrancaRes = await fetch(`${ASAAS_API}/payments`, {
+    const cobrancaRes = await fetch(`${ASAAS_API}v3/payments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${access_token}`
+        access_token: process.env.access_token,
       },
       body: JSON.stringify({
-        customer: clienteData.id,
-        billingType: "PIX",
-        value: Number(total),
-        dueDate: new Date().toISOString().split("T")[0],
-        description: `Pedido de pudins para ${cliente}`,
-        externalReference: JSON.stringify(pedido),
-        callback: "http://localhost:3000/api/pagamento-webhook"
-      })
+  customer: clienteData.id,
+  billingType: "PIX",
+  value: Number(total),
+  dueDate: new Date().toISOString().split("T")[0],
+  description: `Pedido de pudins para ${clienteData.name}`,
+  externalReference: `${clienteData.name}-${Date.now()}`
+})
+
     });
 
+    // Verifica se a resposta da API é válida
     const cobrancaTexto = await cobrancaRes.text();
 
     if (!cobrancaRes.ok) {
@@ -117,13 +118,14 @@ app.post("/api/pagar", async (req, res) => {
     }
 
     let cobranca;
-    try {
-      cobranca = JSON.parse(cobrancaTexto);
-    } catch (e) {
-      throw new Error(`Resposta inválida ao criar cobrança: ${cobrancaTexto}`);
-    }
+try {
+  cobranca = JSON.parse(cobrancaTexto);
+  console.log("📦 Resposta da cobrança:", cobranca);
+} catch (e) {
+  throw new Error(`Resposta inválida ao criar cobrança: ${cobrancaTexto}`);
+}
 
-    console.log("✅ Cobrança criada:", cobranca.invoiceUrl);
+console.log("✅ Cobrança criada:", cobranca.invoiceUrl);
     res.json({ url: cobranca.invoiceUrl });
 
   } catch (error) {
