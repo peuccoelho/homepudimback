@@ -1,4 +1,3 @@
-
 const cardapio = [
   { nome: "Pudim de Café", preco: 8.6, peso: "120g" },
   { nome: "Pudim de Doce de Leite", preco: 8.9, peso: "120g" },
@@ -142,11 +141,6 @@ btnFinalizar.addEventListener("click", async () => {
   const nome = nomeClienteInput.value.trim();
   const pagamento = formaPagamentoInput.value;
 
-  if (!verificarHorarioFuncionamento()) {
-    alert("Pedidos só podem ser feitos de segunda a sexta, das 9h às 17h.");
-    return;
-  }
-
   if (!nome || !pagamento) {
     alert("Preencha todos os campos antes de finalizar o pedido.");
     return;
@@ -195,7 +189,7 @@ function validarFormulario() {
   const nome = nomeClienteInput.value.trim();
   const pagamento = formaPagamentoInput.value;
   const totalUnidades = carrinho.reduce((sum, item) => sum + item.quantidade, 0);
-  btnFinalizar.disabled = !(nome && pagamento && totalUnidades >= 20 && verificarHorarioFuncionamento());
+  btnFinalizar.disabled = !(nome && pagamento && totalUnidades >= 20);
 
   const progresso =
     (carrinho.length > 0 ? 33 : 0) +
