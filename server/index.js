@@ -101,12 +101,13 @@ app.post("/api/pagar", async (req, res) => {
       },
       body: JSON.stringify({
   customer: clienteData.id,
-  billingType: "PIX",
+  billingType: pedido.pagamento.toUpperCase(),
   value: Number(total),
   dueDate: new Date().toISOString().split("T")[0],
   description: `Pedido de pudins para ${clienteData.name}`,
   externalReference: `${clienteData.name}-${Date.now()}`
 })
+
 
     });
 
@@ -135,16 +136,18 @@ console.log("✅ Cobrança criada:", cobranca.invoiceUrl);
 });
 
 // WhatsApp via CallMeBot
-function enviarWhatsApp(mensagem) {
+function enviarWhatsAppPedido(pedido) {
   const numero = process.env.CALLMEBOT_NUMERO;
   const apikey = process.env.CALLMEBOT_APIKEY;
 
-  if (!numero || !apikey || numero.includes("SEUNUMERO")) {
-    console.log("⚠️ WhatsApp não configurado.");
-    return;
-  }
+ const itensTexto = pedido.itens
+    .map(i => `${i.nome} x${i.quantidade}`)
+    .join(" | ");
+  const total = Number(pedido.total).toFixed(2);
 
-  const url = `https://api.callmebot.com/whatsapp.php?phone=${numero}&text=${encodeURIComponent(mensagem)}&apikey=${apikey}`;
+  const mensagem = `✅ Pagamento confirmado!\nCliente: ${pedido.cliente}\nTotal: R$ ${total}\nItens: ${itensTexto}`;
+
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(numero)}&text=${encodeURIComponent(mensagem)}&apikey=${apikey}`;
 
   fetch(url)
     .then(() => console.log("✅ WhatsApp enviado"))
