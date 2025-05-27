@@ -164,7 +164,7 @@ btnFinalizar.addEventListener("click", async () => {
   };
 
   try {
-    const resposta = await fetch("http://localhost:3000/api/pagar", {
+    const resposta = await fetch("https://homepudimback.onrender.com/api/pagar", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
