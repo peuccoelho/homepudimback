@@ -154,6 +154,30 @@ function enviarWhatsAppPedido(pedido) {
     .catch(err => console.error("Erro ao enviar WhatsApp:", err));
 }
 
+// Webhook de pagamento do Asaas
+app.post("/api/pagamento-webhook", async (req, res) => {
+  const body = req.body;
+
+  try {
+    if (body.event === "PAYMENT_RECEIVED") {
+      const pagamento = body.payment;
+
+      const pedido = JSON.parse(pagamento.externalReference || "{}");
+
+      if (pedido && pedido.cliente && pedido.total) {
+        enviarWhatsAppPedido(pedido);
+        console.log("✅ Pagamento confirmado - WhatsApp enviado");
+      } else {
+        console.warn("⚠️ Dados do pedido incompletos no webhook");
+      }
+    }
+  } catch (err) {
+    console.error("Erro no webhook:", err);
+  }
+
+  res.sendStatus(200);
+});
+
 // Admin: listar pedidos
 app.get("/api/pedidos", autenticar, (req, res) => {
   const pedidos = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
