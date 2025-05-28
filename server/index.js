@@ -137,7 +137,11 @@ try {
 }
 
 console.log("✅ Cobrança criada:", cobranca.invoiceUrl);
-    res.json({ url: cobranca.invoiceUrl });
+    res.json({
+  url: cobranca.invoiceUrl,  // link de pagamento
+  pedidoId: pedidoId         // ID que foi salvo no pedidos.json
+});
+
 
   } catch (error) {
     console.error("❌ Erro ao criar cobrança:", error.message);
@@ -177,12 +181,18 @@ app.post("/api/pagamento-webhook", async (req, res) => {
       const pedidos = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
       const pedido = pedidos.find(p => p.id === pedidoId);
 
-
       if (pedido && pedido.cliente && pedido.total) {
+        // atualiza status
+        pedido.status = "pago";
+
+        // salva a lista de pedidos atualizada
+        fs.writeFileSync(DB_FILE, JSON.stringify(pedidos, null, 2));
+
+        // envia WhatsApp
         enviarWhatsAppPedido(pedido);
-        console.log("✅ Pagamento confirmado - WhatsApp enviado");
+        console.log("✅ Pagamento confirmado - status atualizado e WhatsApp enviado");
       } else {
-        console.warn("⚠️ Dados do pedido incompletos no webhook");
+        console.warn("⚠️ Pedido não encontrado ou incompleto no webhook:", pedidoId);
       }
     }
   } catch (err) {
@@ -191,6 +201,20 @@ app.post("/api/pagamento-webhook", async (req, res) => {
 
   res.sendStatus(200);
 });
+
+
+app.get("/api/status-pedido", (req, res) => {
+  const { id } = req.query;
+  const pedidos = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
+  const pedido = pedidos.find(p => p.id === id);
+
+  if (!pedido) {
+    return res.status(404).json({ erro: "Pedido não encontrado" });
+  }
+
+  res.json({ status: pedido.status });
+});
+
 
 // Admin: listar pedidos
 app.get("/api/pedidos", autenticar, (req, res) => {

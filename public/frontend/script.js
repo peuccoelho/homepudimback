@@ -174,11 +174,13 @@ btnFinalizar.addEventListener("click", async () => {
 
     const data = await resposta.json();
 
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      alert("Erro ao redirecionar para pagamento.");
-    }
+    if (data.url && data.pedidoId) {
+  localStorage.setItem("pedidoId", data.pedidoId);
+  window.location.href = `/aguardando.html?id=${data.pedidoId}`;
+} else {
+  alert("Erro ao redirecionar para pagamento.");
+}
+
   } catch (erro) {
     console.error("Erro no pagamento:", erro);
     alert(" Falha na conexão com o servidor.");

@@ -1,0 +1,45 @@
+<!-- aguardando.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Aguardando pagamento...</title>
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const pedidoId = urlParams.get("id");
+
+      if (!pedidoId) {
+        document.write("ID do pedido não informado.");
+      }
+
+      async function verificarStatus() {
+        try {
+          const res = await fetch(`/api/status-pedido?id=${pedidoId}`);
+          const dados = await res.json();
+          if (dados.status === "pago") {
+            window.location.href = "/pagamento-sucesso.html";
+          }
+        } catch (e) {
+          console.error("Erro ao verificar status:", e);
+        }
+      }
+
+      // Verifica a cada 10 segundos
+      setInterval(verificarStatus, 10000);
+      verificarStatus();
+    </script>
+  </head>
+  <body
+    style="
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: sans-serif;
+    "
+  >
+    <h1>⏳ Aguardando confirmação de pagamento...</h1>
+    <p>Você será redirecionado assim que o pagamento for confirmado.</p>
+  </body>
+</html>
