@@ -105,7 +105,8 @@ app.post("/api/pagar", async (req, res) => {
   value: Number(total),
   dueDate: new Date().toISOString().split("T")[0],
   description: `Pedido de pudins para ${clienteData.name}`,
-  externalReference: `${clienteData.name}-${Date.now()}`
+  externalReference: JSON.stringify(pedido)
+
 })
 
 
@@ -150,8 +151,9 @@ function enviarWhatsAppPedido(pedido) {
   const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(numero)}&text=${encodeURIComponent(mensagem)}&apikey=${apikey}`;
 
   fetch(url)
-    .then(() => console.log("✅ WhatsApp enviado"))
-    .catch(err => console.error("Erro ao enviar WhatsApp:", err));
+    .then(res => res.text())
+    .then(resposta => console.log("📨 Resposta CallMeBot:", resposta))
+    .catch(err => console.error("❌ Erro ao enviar WhatsApp:", err));
 }
 
 // Webhook de pagamento do Asaas
