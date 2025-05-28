@@ -114,8 +114,8 @@ fs.writeFileSync(DB_FILE, JSON.stringify(pedidos, null, 2));
   value: Number(total),
   dueDate: new Date().toISOString().split("T")[0],
   description: `Pedido de pudins para ${clienteData.name}`,
-  externalReference: pedidoId 
-
+  externalReference: pedidoId, 
+  redirectUrl: "https://papudim.netlify.app/pagamento-sucesso.html"
 
 })
 
