@@ -171,7 +171,7 @@ app.post("/api/pagamento-webhook", async (req, res) => {
   const body = req.body;
 
   try {
-    if (body.event === "PAYMENT_RECEIVED") {
+    if (body.event === "PAYMENT_CONFIRMED") {
       const pagamento = body.payment;
 
       const pedidoId = pagamento.externalReference;
