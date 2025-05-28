@@ -174,7 +174,10 @@ app.post("/api/pagamento-webhook", async (req, res) => {
     if (body.event === "PAYMENT_RECEIVED") {
       const pagamento = body.payment;
 
-      const pedido = JSON.parse(pagamento.externalReference || "{}");
+      const pedidoId = pagamento.externalReference;
+      const pedidos = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
+      const pedido = pedidos.find(p => p.id === pedidoId);
+
 
       if (pedido && pedido.cliente && pedido.total) {
         enviarWhatsAppPedido(pedido);
