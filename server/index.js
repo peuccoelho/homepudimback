@@ -57,6 +57,15 @@ function autenticar(req, res, next) {
 // Criar pedido
 app.post("/api/pagar", async (req, res) => {
   const pedido = req.body;
+  const pedidoId = `pedido-${Date.now()}`;
+pedido.id = pedidoId;
+pedido.status = "pendente"; // você pode atualizar para "pago" depois
+
+// Salvar pedido no pedidos.json
+const pedidos = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
+pedidos.push(pedido);
+fs.writeFileSync(DB_FILE, JSON.stringify(pedidos, null, 2));
+
   const { cliente, total } = pedido;
 
   try {
@@ -105,7 +114,8 @@ app.post("/api/pagar", async (req, res) => {
   value: Number(total),
   dueDate: new Date().toISOString().split("T")[0],
   description: `Pedido de pudins para ${clienteData.name}`,
-  externalReference: JSON.stringify(pedido)
+  externalReference: pedidoId 
+
 
 })
 
