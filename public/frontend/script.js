@@ -136,7 +136,6 @@ function atualizarCarrinho() {
   if (barraProgresso) barraProgresso.style.width = `${progresso}%`;
 }
 
-// Integração com API Asaas
 btnFinalizar.addEventListener("click", async () => {
   const nome = nomeClienteInput.value.trim();
   const pagamento = formaPagamentoInput.value;
@@ -163,6 +162,9 @@ btnFinalizar.addEventListener("click", async () => {
     total
   };
 
+  // Abre uma aba temporária (ainda sem URL)
+  const abaPagamento = window.open("", "_blank");
+
   try {
     const resposta = await fetch("https://homepudimback.onrender.com/api/pagar", {
       method: "POST",
@@ -175,17 +177,19 @@ btnFinalizar.addEventListener("click", async () => {
     const data = await resposta.json();
 
     if (data.url && data.pedidoId) {
-      // Abre a página de pagamento da Asaas em nova aba
-      window.open(data.url, "_blank");
+      // Agora que temos a URL, carregamos ela na aba já aberta
+      abaPagamento.location.href = data.url;
 
-      // Redireciona para a tela de aguardando pagamento
+      // E redirecionamos a aba atual para a tela de espera
       window.location.href = `/aguardando.html?id=${data.pedidoId}`;
     } else {
       alert("Erro ao redirecionar para pagamento.");
+      abaPagamento.close(); // Fecha a aba vazia caso dê erro
     }
   } catch (erro) {
     console.error("Erro no pagamento:", erro);
     alert("Falha na conexão com o servidor.");
+    abaPagamento.close();
   }
 });
 
