@@ -175,17 +175,20 @@ btnFinalizar.addEventListener("click", async () => {
     const data = await resposta.json();
 
     if (data.url && data.pedidoId) {
-  localStorage.setItem("pedidoId", data.pedidoId);
-  window.location.href = `/aguardando.html?id=${data.pedidoId}`;
-} else {
-  alert("Erro ao redirecionar para pagamento.");
-}
+      // Abre a página de pagamento da Asaas em nova aba
+      window.open(data.url, "_blank");
 
+      // Redireciona para a tela de aguardando pagamento
+      window.location.href = `/aguardando.html?id=${data.pedidoId}`;
+    } else {
+      alert("Erro ao redirecionar para pagamento.");
+    }
   } catch (erro) {
     console.error("Erro no pagamento:", erro);
-    alert(" Falha na conexão com o servidor.");
+    alert("Falha na conexão com o servidor.");
   }
 });
+
 
 function validarFormulario() {
   const nome = nomeClienteInput.value.trim();
