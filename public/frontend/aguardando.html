@@ -7,21 +7,29 @@
       const urlParams = new URLSearchParams(window.location.search);
       const pedidoId = urlParams.get("id");
 
+      if (!pedidoId) {
+        document.body.innerHTML = "Erro: ID do pedido não informado.";
+      }
+
       async function verificarStatus() {
         try {
           const res = await fetch(
             `https://homepudimback.onrender.com/api/status-pedido?id=${pedidoId}`
           );
           const dados = await res.json();
+
           if (dados.status === "pago") {
-            window.location.href = "/pagamento-sucesso.html";
+            console.log("✅ Redirecionando para sucesso.html...");
+            window.location.href = "/sucesso.html";
+          } else {
+            console.log("⏳ Ainda não pago. Status atual:", dados.status);
           }
         } catch (e) {
-          console.error("Erro ao verificar status:", e);
+          console.error("Erro ao verificar status do pedido:", e);
         }
       }
 
-      setInterval(verificarStatus, 5000); // Verifica a cada 5s
+      setInterval(verificarStatus, 5000); // verifica a cada 5s
       verificarStatus();
     </script>
   </head>
