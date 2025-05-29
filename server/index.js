@@ -7,10 +7,19 @@ import fetch from "node-fetch";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import admin from "firebase-admin";
 
 dotenv.config();
 console.log("Token carregado:", process.env.access_token?.slice(0, 10) + "...");
 
+const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG_JSON);
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore();
+const pedidosCollection = db.collection("pedidos");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -61,9 +70,8 @@ app.post("/api/pagar", async (req, res) => {
 pedido.id = pedidoId;
 pedido.status = "pendente"; 
 
-const pedidos = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
-pedidos.push(pedido);
-fs.writeFileSync(DB_FILE, JSON.stringify(pedidos, null, 2));
+await pedidosCollection.doc(pedidoId).set(pedido);
+
 
   const { cliente, total } = pedido;
 
@@ -176,20 +184,18 @@ app.post("/api/pagamento-webhook", async (req, res) => {
   try {
     if (body.event === "PAYMENT_CONFIRMED") {
       const pagamento = body.payment;
-
       const pedidoId = pagamento.externalReference;
-      const pedidos = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
-      const pedido = pedidos.find(p => p.id === pedidoId);
+
+      const pedidoDoc = await pedidosCollection.doc(pedidoId).get();
+      const pedido = pedidoDoc.data();
 
       if (pedido && pedido.cliente && pedido.total) {
-        // atualiza status
-        pedido.status = "pago";
+        // ✅ Atualiza o status direto no Firestore
+        await pedidosCollection.doc(pedidoId).update({ status: "pago" });
 
-        // salva a lista de pedidos atualizada
-        fs.writeFileSync(DB_FILE, JSON.stringify(pedidos, null, 2));
-
-        // envia WhatsApp
+        // ✅ Envia WhatsApp
         enviarWhatsAppPedido(pedido);
+
         console.log("✅ Pagamento confirmado - status atualizado e WhatsApp enviado");
       } else {
         console.warn("⚠️ Pedido não encontrado ou incompleto no webhook:", pedidoId);
@@ -203,16 +209,23 @@ app.post("/api/pagamento-webhook", async (req, res) => {
 });
 
 
-app.get("/api/status-pedido", (req, res) => {
+
+app.get("/api/status-pedido", async (req, res) => {
   const { id } = req.query;
-  const pedidos = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
-  const pedido = pedidos.find(p => p.id === id);
 
-  if (!pedido) {
-    return res.status(404).json({ erro: "Pedido não encontrado" });
+  try {
+    const pedidoDoc = await pedidosCollection.doc(id).get();
+
+    if (!pedidoDoc.exists) {
+      return res.status(404).json({ erro: "Pedido não encontrado" });
+    }
+
+    const pedido = pedidoDoc.data();
+    res.json({ status: pedido.status });
+  } catch (error) {
+    console.error("Erro ao consultar pedido:", error);
+    res.status(500).json({ erro: "Erro ao consultar status" });
   }
-
-  res.json({ status: pedido.status });
 });
 
 
