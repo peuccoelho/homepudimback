@@ -122,7 +122,7 @@ await pedidosCollection.doc(pedidoId).set(pedido);
   dueDate: new Date().toISOString().split("T")[0],
   description: `Pedido de pudins para ${clienteData.name}`,
   externalReference: pedidoId, 
- redirectUrl: `https://papudim.netlify.app/pagamento-sucesso.html?id=${pedidoId}`
+  autoRedirect: `https://papudim.netlify.app/pagamento-sucesso.html?id=${pedidoId}`
 
 })
 
