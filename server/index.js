@@ -76,7 +76,7 @@ await pedidosCollection.doc(pedidoId).set(pedido);
   const { cliente, total } = pedido;
 
   try {
-    console.log("➡️ Criando cliente:", cliente);
+    console.log("Criando cliente:", cliente);
 
     // Criar cliente
     const clienteRes = await fetch(`${ASAAS_API}v3/customers`, {
@@ -106,7 +106,7 @@ await pedidosCollection.doc(pedidoId).set(pedido);
       throw new Error(`Resposta inválida ao criar cliente: ${clienteTexto}`);
     }
 
-    console.log("✅ Cliente criado:", clienteData.id);
+    console.log("Cliente criado:", clienteData.id);
 
     // Criar cobrança
     const cobrancaRes = await fetch(`${ASAAS_API}v3/payments`, {
@@ -128,7 +128,6 @@ await pedidosCollection.doc(pedidoId).set(pedido);
 
 })
 
-
     });
 
     // Verifica se a resposta da API é válida
@@ -141,20 +140,20 @@ await pedidosCollection.doc(pedidoId).set(pedido);
     let cobranca;
 try {
   cobranca = JSON.parse(cobrancaTexto);
-  console.log("📦 Resposta da cobrança:", cobranca);
+  console.log("Resposta da cobrança:", cobranca);
 } catch (e) {
   throw new Error(`Resposta inválida ao criar cobrança: ${cobrancaTexto}`);
 }
 
-console.log("✅ Cobrança criada:", cobranca.invoiceUrl);
+console.log("Cobrança criada:", cobranca.invoiceUrl);
     res.json({
-  url: cobranca.invoiceUrl,  // link de pagamento
-  pedidoId: pedidoId         // ID que foi salvo no pedidos.json
+  url: cobranca.invoiceUrl,  
+  pedidoId: pedidoId        
 });
 
 
   } catch (error) {
-    console.error("❌ Erro ao criar cobrança:", error.message);
+    console.error("Erro ao criar cobrança:", error.message);
     res.status(500).json({ erro: error.message });
   }
 });
@@ -192,15 +191,13 @@ app.post("/api/pagamento-webhook", async (req, res) => {
       const pedido = pedidoDoc.data();
 
       if (pedido && pedido.cliente && pedido.total) {
-        // ✅ Atualiza o status direto no Firestore
         await pedidosCollection.doc(pedidoId).update({ status: "pago" });
 
-        // ✅ Envia WhatsApp
         enviarWhatsAppPedido(pedido);
 
-        console.log("✅ Pagamento confirmado - status atualizado e WhatsApp enviado");
+        console.log("Pagamento confirmado - status atualizado e WhatsApp enviado");
       } else {
-        console.warn("⚠️ Pedido não encontrado ou incompleto no webhook:", pedidoId);
+        console.warn("Pedido não encontrado ou incompleto no webhook:", pedidoId);
       }
     }
   } catch (err) {
@@ -209,8 +206,6 @@ app.post("/api/pagamento-webhook", async (req, res) => {
 
   res.sendStatus(200);
 });
-
-
 
 app.get("/api/status-pedido", async (req, res) => {
   const { id } = req.query;
@@ -250,5 +245,5 @@ app.post("/api/pedido-status", autenticar, (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ Papudim backend rodando em http://localhost:${PORT}`);
+  console.log(`Papudim backend rodando em http://localhost:${PORT}`);
 });

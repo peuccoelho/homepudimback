@@ -23,7 +23,6 @@ const infoSection = document.getElementById("infoSection");
 const statusDiv = document.getElementById("status");
 const barraProgresso = document.getElementById("barraProgresso");
 
-// Alternar seção de informações
 toggleInfo?.addEventListener("click", () => {
   infoSection.classList.toggle("hidden");
 });
@@ -177,14 +176,12 @@ btnFinalizar.addEventListener("click", async () => {
     const data = await resposta.json();
 
     if (data.url && data.pedidoId) {
-      // Agora que temos a URL, carregamos ela na aba já aberta
       abaPagamento.location.href = data.url;
 
-      // E redirecionamos a aba atual para a tela de espera
      window.location.href = `aguardando.html?id=${data.pedidoId}`;
     } else {
       alert("Erro ao redirecionar para pagamento.");
-      abaPagamento.close(); // Fecha a aba vazia caso dê erro
+      abaPagamento.close(); 
     }
   } catch (erro) {
     console.error("Erro no pagamento:", erro);

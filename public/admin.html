@@ -76,7 +76,7 @@
         const senha = document.getElementById("senhaInput").value;
         const erro = document.getElementById("erroSenha");
         try {
-          const res = await fetch("http://localhost:3000/api/login", {
+          const res = await fetch("/api/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ senha }),
@@ -100,7 +100,7 @@
         const tabela = document.getElementById("tabelaPedidos");
         tabela.innerHTML = "";
         try {
-          const res = await fetch("http://localhost:3000/api/pedidos", {
+          const res = await fetch("/api/pedidos", {
             headers: {
               Authorization: `Bearer ${
                 token || sessionStorage.getItem("token")
@@ -157,7 +157,7 @@
       async function atualizarStatus(index, novoStatus) {
         pedidosOriginais[index].status = novoStatus;
         try {
-          await fetch("http://localhost:3000/api/pedido-status", {
+          await fetch("/api/status-pedido", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
