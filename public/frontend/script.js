@@ -181,7 +181,7 @@ btnFinalizar.addEventListener("click", async () => {
       abaPagamento.location.href = data.url;
 
       // E redirecionamos a aba atual para a tela de espera
-     window.location.href = `/frontend/aguardando.html?id=${data.pedidoId}`;
+     window.location.href = `aguardando.html?id=${data.pedidoId}`;
     } else {
       alert("Erro ao redirecionar para pagamento.");
       abaPagamento.close(); // Fecha a aba vazia caso dê erro
