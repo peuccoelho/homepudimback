@@ -36,6 +36,10 @@ const ASAAS_API = "https://api-sandbox.asaas.com/";
 app.use(cors());
 app.use(express.json());
 
+// ✅ Permitir servir arquivos estáticos da pasta "public"
+app.use(express.static(path.join(__dirname, "public")));
+
+
 if (!fs.existsSync(DB_FILE)) {
   fs.writeFileSync(DB_FILE, "[]");
 }
