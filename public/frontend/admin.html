@@ -1,81 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-  <meta charset="UTF-8" />
-  <title>Admin - Pedidos</title>
-  <link rel="stylesheet" href="/styles.css" />
-</head>
-<body class="p-8 font-sans">
-  <script>
-  const token = localStorage.getItem("adminToken");
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin - Pedidos</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="p-8 font-sans">
+    <script>
+      const token = localStorage.getItem("adminToken");
 
-  if (!token) {
-    alert("Acesso não autorizado!");
-    window.location.href = "/frontend/admin-login.html";
-  }
-
-  // Chamar a API com token
-  async function carregarPedidos() {
-    try {
-      const res = await fetch("/api/admin-pedidos", {
-        headers: { Authorization: "Bearer " + token }
-      });
-
-      if (res.status === 401 || res.status === 403) {
-        alert("Token inválido ou expirado.");
-        localStorage.removeItem("adminToken");
+      if (!token) {
+        alert("Acesso não autorizado!");
         window.location.href = "/frontend/admin-login.html";
-        return;
       }
 
-      const pedidos = await res.json();
-      const tbody = document.getElementById("corpoTabela");
-      tbody.innerHTML = "";
-
-      pedidos.forEach(p => {
-        const linha = document.createElement("tr");
-
-        linha.innerHTML = `
-          <td class="border px-2 py-1">${p.cliente}</td>
-          <td class="border px-2 py-1">R$ ${Number(p.total).toFixed(2)}</td>
-          <td class="border px-2 py-1">${p.status}</td>
-          <td class="border px-2 py-1">${p.itens.map(i => `${i.nome} x${i.quantidade}`).join(", ")}</td>
-          <td class="border px-2 py-1">${new Date(parseInt(p.id.split("-")[1])).toLocaleString()}</td>
-        `;
-
-        tbody.appendChild(linha);
-      });
-    } catch (err) {
-      alert("Erro ao carregar pedidos.");
-      console.error(err);
-    }
-  }
-
-  carregarPedidos();
-</script>
-
-  <h1 class="text-2xl font-bold mb-6">📋 Lista de Pedidos</h1>
-
-  <table class="w-full border text-sm" id="tabelaPedidos">
-    <thead>
-      <tr class="bg-gray-100">
-        <th class="border px-2 py-1">Cliente</th>
-        <th class="border px-2 py-1">Total</th>
-        <th class="border px-2 py-1">Status</th>
-        <th class="border px-2 py-1">Itens</th>
-        <th class="border px-2 py-1">Data</th>
-      </tr>
-    </thead>
-    <tbody id="corpoTabela"></tbody>
-  </table>
-</body>
-
- <script>
       async function carregarPedidos() {
         try {
-          const res = await fetch(
-            "https://homepudimback.onrender.com/api/admin-pedidos"
-          );
+          const res = await fetch("/api/admin-pedidos", {
+            headers: { Authorization: "Bearer " + token },
+          });
+
+          if (res.status === 401 || res.status === 403) {
+            alert("Token inválido ou expirado.");
+            localStorage.removeItem("adminToken");
+            window.location.href = "/frontend/admin-login.html";
+            return;
+          }
+
           const pedidos = await res.json();
           const tbody = document.getElementById("corpoTabela");
           tbody.innerHTML = "";
@@ -84,16 +35,16 @@
             const linha = document.createElement("tr");
 
             linha.innerHTML = `
-        <td class="border px-2 py-1">${p.cliente}</td>
-        <td class="border px-2 py-1">R$ ${Number(p.total).toFixed(2)}</td>
-        <td class="border px-2 py-1">${p.status}</td>
-        <td class="border px-2 py-1">${p.itens
-          .map((i) => `${i.nome} x${i.quantidade}`)
-          .join(", ")}</td>
-        <td class="border px-2 py-1">${new Date(
-          parseInt(p.id.split("-")[1])
-        ).toLocaleString()}</td>
-      `;
+            <td class="border px-2 py-1">${p.cliente}</td>
+            <td class="border px-2 py-1">R$ ${Number(p.total).toFixed(2)}</td>
+            <td class="border px-2 py-1">${p.status}</td>
+            <td class="border px-2 py-1">${p.itens
+              .map((i) => `${i.nome} x${i.quantidade}`)
+              .join(", ")}</td>
+            <td class="border px-2 py-1">${new Date(
+              parseInt(p.id?.split("-")[1])
+            ).toLocaleString()}</td>
+          `;
 
             tbody.appendChild(linha);
           });
@@ -105,5 +56,20 @@
 
       carregarPedidos();
     </script>
+
+    <h1 class="text-2xl font-bold mb-6">📋 Lista de Pedidos</h1>
+
+    <table class="w-full border text-sm" id="tabelaPedidos">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="border px-2 py-1">Cliente</th>
+          <th class="border px-2 py-1">Total</th>
+          <th class="border px-2 py-1">Status</th>
+          <th class="border px-2 py-1">Itens</th>
+          <th class="border px-2 py-1">Data</th>
+        </tr>
+      </thead>
+      <tbody id="corpoTabela"></tbody>
+    </table>
   </body>
 </html>
