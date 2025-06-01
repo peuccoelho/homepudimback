@@ -43,12 +43,15 @@ if (!fs.existsSync(DB_FILE)) {
 // Login
 app.post("/api/login", (req, res) => {
   const { senha } = req.body;
-  if (senha === "papudim123") {
+
+  if (senha === process.env.JWT_SECRET || senha === "papudimsecreto123") {
     const token = jwt.sign({ admin: true }, SECRET_KEY, { expiresIn: "2h" });
-    return res.json({ token });
+    return res.json({ token });  // ✅ importante ter RETURN aqui
   }
-  return res.status(401).json({ erro: "Senha incorreta" });
+
+  return res.status(401).json({ erro: "Senha incorreta" });  // ✅ e aqui também
 });
+
 
 function autenticar(req, res, next) {
   const authHeader = req.headers.authorization;
