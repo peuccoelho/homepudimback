@@ -227,10 +227,18 @@ app.get("/api/status-pedido", async (req, res) => {
 
 
 // Admin: listar pedidos
-app.get("/api/pedidos", autenticar, (req, res) => {
-  const pedidos = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
-  res.json(pedidos);
+app.get("/api/admin-pedidos", autenticar, async (req, res) => {
+  try {
+    const snapshot = await pedidosCollection.get();
+    const pedidos = snapshot.docs.map(doc => doc.data());
+    res.json(pedidos);
+  } catch (error) {
+    console.error("Erro ao listar pedidos:", error);
+    res.status(500).json({ erro: "Erro ao listar pedidos" });
+  }
 });
+
+
 
 // Admin: alterar status
 app.post("/api/pedido-status", autenticar, (req, res) => {
