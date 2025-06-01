@@ -41,30 +41,7 @@ if (!fs.existsSync(DB_FILE)) {
 }
 
 // Login
-app.post("/api/login", (req, res) => {
-  const { senha } = req.body;
-
-  if (senha === process.env.JWT_SECRET || senha === "papudimsecreto123") {
-    const token = jwt.sign({ admin: true }, SECRET_KEY, { expiresIn: "2h" });
-    return res.json({ token });  // ✅ importante ter RETURN aqui
-  }
-
-  return res.status(401).json({ erro: "Senha incorreta" });  // ✅ e aqui também
-});
-
-
-function autenticar(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).json({ erro: "Token ausente" });
-
-  const token = authHeader.split(" ")[1];
-  try {
-    jwt.verify(token, SECRET_KEY);
-    next();
-  } catch {
-    res.status(403).json({ erro: "Token inválido" });
-  }
-}
+//...
 
 // Criar pedido
 app.post("/api/pagar", async (req, res) => {
@@ -230,30 +207,7 @@ app.get("/api/status-pedido", async (req, res) => {
 
 
 // Admin: listar pedidos
-app.get("/api/admin-pedidos", autenticar, async (req, res) => {
-  try {
-    const snapshot = await pedidosCollection.get();
-    const pedidos = snapshot.docs.map(doc => doc.data());
-    res.json(pedidos);
-  } catch (error) {
-    console.error("Erro ao listar pedidos:", error);
-    res.status(500).json({ erro: "Erro ao listar pedidos" });
-  }
-});
-
-
-
-// Admin: alterar status
-app.post("/api/pedido-status", autenticar, (req, res) => {
-  const { index, status } = req.body;
-  const pedidos = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
-  if (typeof index !== "number" || !pedidos[index]) {
-    return res.status(400).json({ erro: "Índice inválido ou pedido não encontrado" });
-  }
-  pedidos[index].status = status;
-  fs.writeFileSync(DB_FILE, JSON.stringify(pedidos, null, 2));
-  res.json({ sucesso: true });
-});
+//...
 
 app.listen(PORT, () => {
   console.log(`Papudim backend rodando em http://localhost:${PORT}`);
