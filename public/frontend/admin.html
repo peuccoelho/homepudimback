@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Painel de Pedidos</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 40px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 8px;
+      }
+      th {
+        background-color: #f3f3f3;
+      }
+      button {
+        padding: 8px 12px;
+        margin: 10px 5px;
+        cursor: pointer;
+      }
+      .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <h1>📦 Pedidos Recebidos</h1>
+      <div>
+        <button onclick="exportarCSV()">📤 Exportar CSV</button>
+        <button onclick="logout()">🚪 Sair</button>
+      </div>
+    </div>
+
+    <label for="filtroStatus">Filtrar por status:</label>
+    <select id="filtroStatus" onchange="carregarPedidos()">
+      <option value="">Todos</option>
+      <option value="pendente">Pendente</option>
+      <option value="pago">Pago</option>
+    </select>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Itens</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaPedidos"></tbody>
+    </table>
+
+    <script>
+      const token = localStorage.getItem("adminToken");
+      if (!token) {
+        alert("Acesso negado!");
+        window.location.href = "/admin-login.html";
+      }
+
+      let todosPedidos = [];
+
+      async function carregarPedidos() {
+        const res = await fetch("/api/admin-pedidos", {
+          headers: { Authorization: "Bearer " + token },
+        });
+
+        if (!res.ok) {
+          alert("Token expirado ou inválido.");
+          localStorage.removeItem("adminToken");
+          window.location.href = "/admin-login.html";
+          return;
+        }
+
+        const pedidos = await res.json();
+        todosPedidos = pedidos;
+
+        const filtro = document.getElementById("filtroStatus").value;
+        const filtrados = filtro
+          ? pedidos.filter((p) => p.status === filtro)
+          : pedidos;
+
+        const tabela = document.getElementById("tabelaPedidos");
+        tabela.innerHTML = "";
+
+        filtrados.forEach((pedido) => {
+          const linha = document.createElement("tr");
+          const data = new Date(
+            Number(pedido.id?.split("-")[1]) || 0
+          ).toLocaleString("pt-BR");
+          const itens = pedido.itens
+            .map((i) => `${i.nome} x${i.quantidade}`)
+            .join(", ");
+
+          linha.innerHTML = `
+          <td>${pedido.cliente}</td>
+          <td>R$ ${pedido.total.toFixed(2)}</td>
+          <td>${pedido.status}</td>
+          <td>${itens}</td>
+          <td>${data}</td>
+        `;
+          tabela.appendChild(linha);
+        });
+      }
+
+      function exportarCSV() {
+        let csv = "Cliente,Total,Status,Itens,Data\n";
+        todosPedidos.forEach((pedido) => {
+          const data = new Date(
+            Number(pedido.id?.split("-")[1]) || 0
+          ).toLocaleString("pt-BR");
+          const itens = pedido.itens
+            .map((i) => `${i.nome} x${i.quantidade}`)
+            .join(" / ");
+          csv += `${pedido.cliente},${pedido.total},${pedido.status},"${itens}",${data}\n`;
+        });
+
+        const blob = new Blob([csv], { type: "text/csv" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "pedidos_papudim.csv";
+        link.click();
+      }
+
+      function logout() {
+        localStorage.removeItem("adminToken");
+        window.location.href = "/admin-login.html";
+      }
+
+      carregarPedidos();
+    </script>
+  </body>
+</html>
