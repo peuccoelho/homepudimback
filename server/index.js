@@ -44,7 +44,7 @@ if (!fs.existsSync(DB_FILE)) {
 app.post("/api/login", (req, res) => {
   const { senha } = req.body;
   if (senha === "papudim123") {
-    const token = jwt.sign({ admin: true }, SECRET_KEY, { expiresIn: "2h" });
+    const token = jwt.sign({ admin: true }, SECRET_KEY, { expiresIn: "12h" });
     return res.json({ token });
   }
   return res.status(401).json({ erro: "Senha incorreta" });
