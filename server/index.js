@@ -58,8 +58,9 @@ function autenticar(req, res, next) {
   try {
     jwt.verify(token, SECRET_KEY);
     next();
-  } catch {
-    res.status(403).json({ erro: "Token inválido" });
+  } catch (err) {
+    console.error("Erro ao verificar token:", err); // Veja o erro real no log do Render
+    res.status(403).json({ erro: "Token inválido ou expirado" });
   }
 }
 
