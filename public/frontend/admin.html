@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <title>Painel de Pedidos</title>
     <link rel="icon" href="papudimlogo.png" />
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body {
@@ -15,24 +18,42 @@
   </head>
   <body class="min-h-screen px-4 py-8">
     <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-md p-8">
-      <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+      <div
+        class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4"
+      >
         <div class="flex items-center gap-3">
-          <img src="papudimlogo.png" alt="Logo" class="w-12 h-12 rounded-full" />
-          <h1 class="text-2xl font-bold text-[#a47551]">📦 Pedidos Recebidos</h1>
+          <img
+            src="papudimlogo.png"
+            alt="Logo"
+            class="w-12 h-12 rounded-full"
+          />
+          <h1 class="text-2xl font-bold text-[#a47551]">Pedidos Recebidos</h1>
         </div>
         <div class="flex gap-2">
-          <button onclick="exportarCSV()" class="bg-[#a47551] hover:bg-[#916546] text-white px-4 py-2 rounded-xl transition flex items-center gap-2">
+          <button
+            onclick="exportarCSV()"
+            class="bg-[#a47551] hover:bg-[#916546] text-white px-4 py-2 rounded-xl transition flex items-center gap-2"
+          >
             📤 Exportar CSV
           </button>
-          <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl transition flex items-center gap-2">
+          <button
+            onclick="logout()"
+            class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl transition flex items-center gap-2"
+          >
             🚪 Sair
           </button>
         </div>
       </div>
 
       <div class="mb-4 flex flex-col sm:flex-row items-center gap-2">
-        <label for="filtroStatus" class="font-semibold text-[#a47551]">Filtrar por status:</label>
-        <select id="filtroStatus" onchange="carregarPedidos()" class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a47551]">
+        <label for="filtroStatus" class="font-semibold text-[#a47551]"
+          >Filtrar por status:</label
+        >
+        <select
+          id="filtroStatus"
+          onchange="carregarPedidos()"
+          class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a47551]"
+        >
           <option value="">Todos</option>
           <option value="pendente">Pendente</option>
           <option value="pago">Pago</option>
@@ -54,7 +75,9 @@
         </table>
       </div>
     </div>
-    <footer class="mt-10 text-sm text-gray-500 text-center">&copy; 2025 Papudim</footer>
+    <footer class="mt-10 text-sm text-gray-500 text-center">
+      &copy; 2025 Papudim
+    </footer>
     <script>
       const token = localStorage.getItem("adminToken");
       if (!token) {
@@ -65,10 +88,13 @@
       let todosPedidos = [];
 
       async function carregarPedidos() {
-        const res = await fetch("https://homepudimback.onrender.com/api/admin-pedidos", {
-          headers: { Authorization: "Bearer " + token },
-          credentials: "include"
-        });
+        const res = await fetch(
+          "https://homepudimback.onrender.com/api/admin-pedidos",
+          {
+            headers: { Authorization: "Bearer " + token },
+            credentials: "include",
+          }
+        );
 
         if (!res.ok) {
           alert("Token expirado ou inválido.");
