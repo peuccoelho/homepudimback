@@ -33,7 +33,10 @@ const access_token = process.env.access_token;
 const ASAAS_API = "https://api-sandbox.asaas.com/";
 
 
-app.use(cors());
+app.use(cors({
+  origin: "https://papudim.netlify.app",
+  credentials: true,
+}));
 app.use(express.json());
 
 if (!fs.existsSync(DB_FILE)) {
@@ -52,14 +55,22 @@ app.post("/api/login", (req, res) => {
 
 function autenticar(req, res, next) {
   const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).json({ erro: "Token ausente" });
+  console.log("Authorization header recebido:", authHeader);
+
+  if (!authHeader) {
+    console.warn("Token ausente");
+    return res.status(401).json({ erro: "Token ausente" });
+  }
 
   const token = authHeader.split(" ")[1];
+  console.log("Token recebido:", token);
+
   try {
-    jwt.verify(token, SECRET_KEY);
+    const decoded = jwt.verify(token, SECRET_KEY);
+    console.log("Token decodificado:", decoded);
     next();
   } catch (err) {
-    console.error("Erro ao verificar token:", err); // Veja o erro real no log do Render
+    console.error("Erro ao verificar token:", err);
     res.status(403).json({ erro: "Token inválido ou expirado" });
   }
 }

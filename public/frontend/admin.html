@@ -72,8 +72,9 @@
       let todosPedidos = [];
 
       async function carregarPedidos() {
-        const res = await fetch("/api/admin-pedidos", {
+        const res = await fetch("https://homepudimback.onrender.com/api/admin-pedidos", {
           headers: { Authorization: "Bearer " + token },
+          credentials: "include"
         });
 
         if (!res.ok) {
