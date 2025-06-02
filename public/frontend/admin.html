@@ -75,6 +75,13 @@
         </table>
       </div>
     </div>
+    <div
+      id="insights"
+      class="mb-8 p-6 bg-[#f3e8df] rounded-xl shadow flex flex-col gap-2 text-[#5c3b1e]"
+    >
+      <span class="font-bold text-lg">📊 Insights do Papudim</span>
+      <div id="insights-content" class="text-base"></div>
+    </div>
     <footer class="mt-10 text-sm text-gray-500 text-center">
       &copy; 2025 Papudim
     </footer>
@@ -158,7 +165,36 @@
         window.location.href = "/admin-login.html";
       }
 
+      async function carregarInsights() {
+        try {
+          // Troque a URL abaixo para o endereço público do seu Flask!
+          const res = await fetch(
+            "https://homebackpudim.onrender.com/api/insights"
+          );
+          const data = await res.json();
+          let html = `<b>Faturamento total:</b> R$ ${data.faturamento_total.toFixed(
+            2
+          )}<br>`;
+          html += "<b>Top Sabores:</b><ul>";
+          data.top_sabores.forEach(
+            (s) => (html += `<li>${s.sabor}: ${s.quantidade} unidades</li>`)
+          );
+          html += "</ul>";
+          html += "<b>Faturamento por data:</b><ul>";
+          data.timeline.forEach(
+            (t) =>
+              (html += `<li>${t.data}: R$ ${t.faturamento.toFixed(2)}</li>`)
+          );
+          html += "</ul>";
+          document.getElementById("insights-content").innerHTML = html;
+        } catch (e) {
+          document.getElementById("insights-content").innerText =
+            "Erro ao carregar insights.";
+        }
+      }
+
       carregarPedidos();
+      carregarInsights();
     </script>
   </body>
 </html>
