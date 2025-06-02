@@ -102,10 +102,20 @@
       id="insights"
       class="max-w-4xl mx-auto mt-6 mb-8 p-6 bg-gradient-to-br from-[#f3e8df] to-[#fdfaf6] rounded-xl shadow flex flex-col gap-2 text-[#5c3b1e] hidden"
     >
-      <span class="font-bold text-lg flex items-center gap-2">
-        <span class="material-icons-outlined text-2xl text-blue-600">insights</span>
-        Insights do Papudim
-      </span>
+      <div class="flex items-center justify-between mb-2">
+        <span class="font-bold text-lg flex items-center gap-2">
+          <span class="material-icons-outlined text-2xl text-blue-600">insights</span>
+          Insights do Papudim
+        </span>
+        <button
+          id="btnFecharInsights"
+          onclick="fecharInsights()"
+          class="ml-4 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full p-1 transition"
+          title="Fechar"
+        >
+          <span class="material-icons-outlined text-lg">close</span>
+        </button>
+      </div>
       <div id="insights-content" class="text-base"></div>
     </div>
 
@@ -220,6 +230,13 @@
         carregarInsights();
         document.getElementById("btnInsights").disabled = true;
         document.getElementById("btnInsights").classList.add("opacity-50", "cursor-not-allowed");
+      }
+
+      function fecharInsights() {
+        const insightsDiv = document.getElementById("insights");
+        insightsDiv.classList.add("hidden");
+        document.getElementById("btnInsights").disabled = false;
+        document.getElementById("btnInsights").classList.remove("opacity-50", "cursor-not-allowed");
       }
 
       async function carregarInsights() {
