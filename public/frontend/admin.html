@@ -3,65 +3,58 @@
   <head>
     <meta charset="UTF-8" />
     <title>Painel de Pedidos</title>
+    <link rel="icon" href="papudimlogo.png" />
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body {
-        font-family: sans-serif;
-        padding: 40px;
-      }
-      table {
-        border-collapse: collapse;
-        width: 100%;
-        margin-top: 20px;
-      }
-      th,
-      td {
-        border: 1px solid #ccc;
-        padding: 8px;
-      }
-      th {
-        background-color: #f3f3f3;
-      }
-      button {
-        padding: 8px 12px;
-        margin: 10px 5px;
-        cursor: pointer;
-      }
-      .top-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        font-family: "Quicksand", sans-serif;
+        background-color: #fdfaf6;
       }
     </style>
   </head>
-  <body>
-    <div class="top-bar">
-      <h1>📦 Pedidos Recebidos</h1>
-      <div>
-        <button onclick="exportarCSV()">📤 Exportar CSV</button>
-        <button onclick="logout()">🚪 Sair</button>
+  <body class="min-h-screen px-4 py-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-md p-8">
+      <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        <div class="flex items-center gap-3">
+          <img src="papudimlogo.png" alt="Logo" class="w-12 h-12 rounded-full" />
+          <h1 class="text-2xl font-bold text-[#a47551]">📦 Pedidos Recebidos</h1>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="exportarCSV()" class="bg-[#a47551] hover:bg-[#916546] text-white px-4 py-2 rounded-xl transition flex items-center gap-2">
+            📤 Exportar CSV
+          </button>
+          <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl transition flex items-center gap-2">
+            🚪 Sair
+          </button>
+        </div>
+      </div>
+
+      <div class="mb-4 flex flex-col sm:flex-row items-center gap-2">
+        <label for="filtroStatus" class="font-semibold text-[#a47551]">Filtrar por status:</label>
+        <select id="filtroStatus" onchange="carregarPedidos()" class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a47551]">
+          <option value="">Todos</option>
+          <option value="pendente">Pendente</option>
+          <option value="pago">Pago</option>
+        </select>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead>
+            <tr class="bg-[#f3e8df] text-[#a47551]">
+              <th class="py-2 px-3">Cliente</th>
+              <th class="py-2 px-3">Total</th>
+              <th class="py-2 px-3">Status</th>
+              <th class="py-2 px-3">Itens</th>
+              <th class="py-2 px-3">Data</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaPedidos"></tbody>
+        </table>
       </div>
     </div>
-
-    <label for="filtroStatus">Filtrar por status:</label>
-    <select id="filtroStatus" onchange="carregarPedidos()">
-      <option value="">Todos</option>
-      <option value="pendente">Pendente</option>
-      <option value="pago">Pago</option>
-    </select>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Cliente</th>
-          <th>Total</th>
-          <th>Status</th>
-          <th>Itens</th>
-          <th>Data</th>
-        </tr>
-      </thead>
-      <tbody id="tabelaPedidos"></tbody>
-    </table>
-
+    <footer class="mt-10 text-sm text-gray-500 text-center">&copy; 2025 Papudim</footer>
     <script>
       const token = localStorage.getItem("adminToken");
       if (!token) {
@@ -105,12 +98,12 @@
             .join(", ");
 
           linha.innerHTML = `
-          <td>${pedido.cliente}</td>
-          <td>R$ ${pedido.total.toFixed(2)}</td>
-          <td>${pedido.status}</td>
-          <td>${itens}</td>
-          <td>${data}</td>
-        `;
+            <td class="py-2 px-3">${pedido.cliente}</td>
+            <td class="py-2 px-3">R$ ${pedido.total.toFixed(2)}</td>
+            <td class="py-2 px-3">${pedido.status}</td>
+            <td class="py-2 px-3">${itens}</td>
+            <td class="py-2 px-3">${data}</td>
+          `;
           tabela.appendChild(linha);
         });
       }
