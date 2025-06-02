@@ -5,8 +5,10 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import pandas as pd
 from collections import defaultdict
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # 🔃 Carrega variáveis do .env
 load_dotenv()

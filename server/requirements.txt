@@ -2,3 +2,4 @@ flask
 firebase-admin
 python-dotenv
 pandas
+flask-cors
