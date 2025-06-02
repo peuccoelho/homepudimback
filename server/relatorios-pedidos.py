@@ -8,7 +8,7 @@ from collections import defaultdict
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://papudim.netlify.app/admin.html"])
 
 # 🔃 Carrega variáveis do .env
 load_dotenv()
