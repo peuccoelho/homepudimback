@@ -1,16 +1,47 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-  <meta charset="UTF-8" />
-  <title>Login Admin</title>
-  <script src="script-admin.js"></script>
-  <style>
-    body { font-family: sans-serif; text-align: center; padding-top: 80px; }
-    input, button { padding: 10px; font-size: 16px; margin: 10px; width: 250px; }
-  </style>
-</head>
-<body>
-  <h1>🔐 Login do Administrador</h1>
-  <input type="password" id="senha" placeholder="Digite a senha" />
-  <br>
-  <button onclick="logar
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login Admin</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        padding-top: 80px;
+      }
+      input,
+      button {
+        padding: 10px;
+        font-size: 16px;
+        margin: 10px;
+        width: 250px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔐 Login do Administrador</h1>
+    <input type="password" id="senha" placeholder="Digite a senha" />
+    <br />
+    <button onclick="logar()">Entrar</button>
+
+    <script>
+      async function logar() {
+        const senha = document.getElementById("senha").value.trim();
+
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ senha }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          localStorage.setItem("adminToken", data.token);
+          window.location.href = "/admin.html";
+        } else {
+          alert("❌ Senha incorreta!");
+        }
+      }
+    </script>
+  </body>
+</html>
