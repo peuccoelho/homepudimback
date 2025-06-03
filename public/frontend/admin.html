@@ -25,7 +25,9 @@
   <body class="min-h-screen px-2 py-4 sm:px-4 sm:py-8 bg-[#fdfaf6]">
     <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-4 sm:p-8">
       <!-- Header -->
-      <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+      <div
+        class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4"
+      >
         <div class="flex items-center gap-3">
           <img
             src="papudimlogo.png"
@@ -86,6 +88,8 @@
           <thead>
             <tr class="bg-[#f3e8df] text-[#a47551]">
               <th class="py-2 px-3 text-left">Cliente</th>
+              <th class="py-2 px-3 text-left">E-mail</th>
+              <th class="py-2 px-3 text-left">Celular</th>
               <th class="py-2 px-3 text-left">Total</th>
               <th class="py-2 px-3 text-left">Status</th>
               <th class="py-2 px-3 text-left">Itens</th>
@@ -104,7 +108,9 @@
     >
       <div class="flex items-center justify-between mb-2">
         <span class="font-bold text-lg flex items-center gap-2">
-          <span class="material-icons-outlined text-2xl text-blue-600">insights</span>
+          <span class="material-icons-outlined text-2xl text-blue-600"
+            >insights</span
+          >
           Insights do Papudim
         </span>
         <button
@@ -167,7 +173,7 @@
 
         if (filtrados.length === 0) {
           const linha = document.createElement("tr");
-          linha.innerHTML = `<td colspan="5" class="py-4 text-center text-gray-400">Nenhum pedido encontrado.</td>`;
+          linha.innerHTML = `<td colspan="7" class="py-4 text-center text-gray-400">Nenhum pedido encontrado.</td>`;
           tabela.appendChild(linha);
         } else {
           filtrados.forEach((pedido) => {
@@ -182,6 +188,8 @@
             linha.className = "hover:bg-[#f3e8df] transition";
             linha.innerHTML = `
               <td class="py-2 px-3">${pedido.cliente}</td>
+              <td class="py-2 px-3">${pedido.email || "-"}</td>
+              <td class="py-2 px-3">${pedido.celular || "-"}</td>
               <td class="py-2 px-3">R$ ${pedido.total.toFixed(2)}</td>
               <td class="py-2 px-3">
                 <span class="inline-block px-2 py-1 rounded-full text-xs font-semibold ${
@@ -201,7 +209,7 @@
       }
 
       function exportarCSV() {
-        let csv = "Cliente,Total,Status,Itens,Data\n";
+        let csv = "Cliente,E-mail,Celular,Total,Status,Itens,Data\n";
         todosPedidos.forEach((pedido) => {
           const data = new Date(
             Number(pedido.id?.split("-")[1]) || 0
@@ -209,7 +217,9 @@
           const itens = pedido.itens
             .map((i) => `${i.nome} x${i.quantidade}`)
             .join(" / ");
-          csv += `${pedido.cliente},${pedido.total},${pedido.status},"${itens}",${data}\n`;
+          csv += `${pedido.cliente},${pedido.email || "-"},${
+            pedido.celular || "-"
+          },${pedido.total},${pedido.status},"${itens}",${data}\n`;
         });
 
         const blob = new Blob([csv], { type: "text/csv" });
@@ -229,14 +239,18 @@
         insightsDiv.classList.remove("hidden");
         carregarInsights();
         document.getElementById("btnInsights").disabled = true;
-        document.getElementById("btnInsights").classList.add("opacity-50", "cursor-not-allowed");
+        document
+          .getElementById("btnInsights")
+          .classList.add("opacity-50", "cursor-not-allowed");
       }
 
       function fecharInsights() {
         const insightsDiv = document.getElementById("insights");
         insightsDiv.classList.add("hidden");
         document.getElementById("btnInsights").disabled = false;
-        document.getElementById("btnInsights").classList.remove("opacity-50", "cursor-not-allowed");
+        document
+          .getElementById("btnInsights")
+          .classList.remove("opacity-50", "cursor-not-allowed");
       }
 
       async function carregarInsights() {
@@ -250,13 +264,18 @@
           )}</span><br>`;
           html += "<b>Top Sabores:</b><ul class='list-disc pl-5'>";
           data.top_sabores.forEach(
-            (s) => (html += `<li>${s.sabor}: <span class="font-semibold">${s.quantidade} unidades</span></li>`)
+            (s) =>
+              (html += `<li>${s.sabor}: <span class="font-semibold">${s.quantidade} unidades</span></li>`)
           );
           html += "</ul>";
           html += "<b>Faturamento por data:</b><ul class='list-disc pl-5'>";
           data.timeline.forEach(
             (t) =>
-              (html += `<li>${t.data}: <span class="font-semibold">R$ ${t.faturamento.toFixed(2)}</span></li>`)
+              (html += `<li>${
+                t.data
+              }: <span class="font-semibold">R$ ${t.faturamento.toFixed(
+                2
+              )}</span></li>`)
           );
           html += "</ul>";
           document.getElementById("insights-content").innerHTML = html;

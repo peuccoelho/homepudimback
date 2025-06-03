@@ -176,12 +176,18 @@ function enviarWhatsAppPedido(pedido) {
   const numero = process.env.CALLMEBOT_NUMERO;
   const apikey = process.env.CALLMEBOT_APIKEY;
 
- const itensTexto = pedido.itens
+  const itensTexto = pedido.itens
     .map(i => `${i.nome} x${i.quantidade}`)
     .join(" | ");
   const total = Number(pedido.total).toFixed(2);
 
-  const mensagem = `✅ Pagamento confirmado!\nCliente: ${pedido.cliente}\nTotal: R$ ${total}\nItens: ${itensTexto}`;
+  // Inclui email e celular na mensagem
+  const mensagem = `✅ Pagamento confirmado!
+Cliente: ${pedido.cliente}
+E-mail: ${pedido.email}
+Celular: ${pedido.celular}
+Total: R$ ${total}
+Itens: ${itensTexto}`;
 
   const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(numero)}&text=${encodeURIComponent(mensagem)}&apikey=${apikey}`;
 
