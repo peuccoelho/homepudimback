@@ -86,7 +86,7 @@ pedido.status = "pendente";
 await pedidosCollection.doc(pedidoId).set(pedido);
 
 
-  const { cliente, total } = pedido;
+  const { cliente, email, celular, total } = pedido;
 
   try {
     console.log("Criando cliente:", cliente);
@@ -100,9 +100,9 @@ await pedidosCollection.doc(pedidoId).set(pedido);
       },
       body: JSON.stringify({
         name: cliente,
-        email: `${cliente.toLowerCase().replace(/\s/g, "")}@teste.com`,
+        email: email,
         cpfCnpj: "12345678909",
-        phone: "81988889999"
+        phone: celular
       })
     });
 

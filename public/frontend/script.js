@@ -16,6 +16,8 @@ const carrinho = [];
 const cardapioContainer = document.getElementById("cardapio");
 const carrinhoContainer = document.getElementById("carrinho");
 const nomeClienteInput = document.getElementById("nomeCliente");
+const emailClienteInput = document.getElementById("emailCliente");
+const celularClienteInput = document.getElementById("celularCliente");
 const formaPagamentoInput = document.getElementById("formaPagamento");
 const btnFinalizar = document.getElementById("finalizarPedido");
 const toggleInfo = document.getElementById("toggleInfo");
@@ -137,10 +139,22 @@ function atualizarCarrinho() {
 
 btnFinalizar.addEventListener("click", async () => {
   const nome = nomeClienteInput.value.trim();
+  const email = emailClienteInput.value.trim();
+  const celular = celularClienteInput.value.trim();
   const pagamento = formaPagamentoInput.value;
 
-  if (!nome || !pagamento) {
+  if (!nome || !email || !celular || !pagamento) {
     alert("Preencha todos os campos antes de finalizar o pedido.");
+    return;
+  }
+
+  // Validação simples de e-mail e celular
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert("Digite um e-mail válido.");
+    return;
+  }
+  if (!/^\d{10,15}$/.test(celular.replace(/\D/g, ""))) {
+    alert("Digite um número de celular válido (apenas números, com DDD).");
     return;
   }
 
@@ -156,6 +170,8 @@ btnFinalizar.addEventListener("click", async () => {
 
   const pedido = {
     cliente: nome,
+    email,
+    celular,
     pagamento,
     itens: carrinho,
     total
@@ -193,9 +209,11 @@ btnFinalizar.addEventListener("click", async () => {
 
 function validarFormulario() {
   const nome = nomeClienteInput.value.trim();
+  const email = emailClienteInput.value.trim();
+  const celular = celularClienteInput.value.trim();
   const pagamento = formaPagamentoInput.value;
   const totalUnidades = carrinho.reduce((sum, item) => sum + item.quantidade, 0);
-  btnFinalizar.disabled = !(nome && pagamento && totalUnidades >= 20);
+  btnFinalizar.disabled = !(nome && email && celular && pagamento && totalUnidades >= 20);
 
   const progresso =
     (carrinho.length > 0 ? 33 : 0) +
@@ -205,6 +223,8 @@ function validarFormulario() {
 }
 
 nomeClienteInput.addEventListener("input", validarFormulario);
+emailClienteInput.addEventListener("input", validarFormulario);
+celularClienteInput.addEventListener("input", validarFormulario);
 formaPagamentoInput.addEventListener("change", validarFormulario);
 
 function exibirToast(mensagem) {
