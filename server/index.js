@@ -181,7 +181,6 @@ function enviarWhatsAppPedido(pedido) {
     .join(" | ");
   const total = Number(pedido.total).toFixed(2);
 
-  // Inclui email e celular na mensagem
   const mensagem = `✅ Pagamento confirmado!
 Cliente: ${pedido.cliente}
 E-mail: ${pedido.email}
