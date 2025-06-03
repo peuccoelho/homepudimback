@@ -102,7 +102,7 @@ await pedidosCollection.doc(pedidoId).set(pedido);
         name: cliente,
         email: email,
         cpfCnpj: "12345678909",
-        phone: celular
+        mobilePhone: celular
       })
     });
 
