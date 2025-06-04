@@ -192,8 +192,8 @@ Itens: ${itensTexto}`;
 
   fetch(url)
     .then(res => res.text())
-    .then(resposta => console.log("📨 Resposta CallMeBot:", resposta))
-    .catch(err => console.error("❌ Erro ao enviar WhatsApp:", err));
+    .then(resposta => console.log("Resposta CallMeBot:", resposta))
+    .catch(err => console.error("Erro ao enviar WhatsApp:", err));
 }
 
 // Webhook de pagamento do Asaas
