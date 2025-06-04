@@ -1,142 +1,129 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Papudim</title>
+    <title>Papudim - Pudins Artesanais</title>
     <link rel="icon" href="papudimlogo.png" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="script.js"></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body {
         font-family: "Quicksand", sans-serif;
+        background: linear-gradient(135deg, #fdf6e3 0%, #f8e7d1 100%);
+        color: #3e2c23;
       }
-
-      @keyframes fade-in {
-        0% {
+      .animate-fade-in {
+        animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+      }
+      @keyframes fadeIn {
+        from {
           opacity: 0;
-          transform: translateY(10px);
+          transform: translateY(20px);
         }
-        100% {
+        to {
           opacity: 1;
           transform: translateY(0);
         }
       }
-
-      .animate-fade-in {
-        animation: fade-in 0.6s ease-out forwards;
-      }
     </style>
   </head>
-  <body class="bg-[#f5f0eb] text-[#5c3b1e] px-4 py-6 sm:px-6">
-    <div
-      class="flex flex-col items-center justify-center gap-3 mb-10 text-center"
+  <body class="min-h-screen flex flex-col">
+    <header
+      class="w-full py-6 sm:py-8 flex flex-col items-center animate-fade-in"
     >
       <img
         src="papudimlogo.png"
-        alt="Logo"
-        class="w-24 h-24 rounded-full animate-fade-in"
+        alt="Logo Papudim"
+        class="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-lg border-4 border-[#e2cdb0] mb-3 sm:mb-4"
       />
-      <h1 class="text-4xl font-bold tracking-wide animate-fade-in">Papudim</h1>
-      <p class="italic text-lg animate-fade-in">Pudim baiano de respeito! 🍮</p>
-    </div>
-
-    <div class="max-w-xl mx-auto text-center space-y-6">
-      <p class="text-base sm:text-lg">
-        Bem-vindo ao Papudim, onde você encontra os pudins mais deliciosos de
-        Salvador! Trabalhamos por encomenda e com muito carinho para adoçar seu
-        dia.
+      <h1
+        class="text-3xl sm:text-5xl font-bold text-[#a47551] drop-shadow mb-1 sm:mb-2 tracking-tight"
+      >
+        Papudim
+      </h1>
+      <p class="text-base sm:text-lg text-gray-600 mb-1 sm:mb-2">
+        Pudins artesanais feitos com carinho e sabor!
       </p>
+      <span
+        class="inline-block bg-[#e2cdb0] text-[#a47551] px-3 py-1 sm:px-4 rounded-full text-xs sm:text-sm font-semibold shadow mt-1 sm:mt-2"
+      >
+        Pedidos por encomenda
+      </span>
+    </header>
 
-      <div class="flex flex-col items-center gap-4 w-full">
+    <main class="flex-1 flex flex-col items-center justify-center px-2 sm:px-4">
+      <section
+        class="w-full max-w-md sm:max-w-xl bg-white/90 rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8 flex flex-col items-center gap-4 sm:gap-6 animate-fade-in"
+      >
+        <h2
+          class="text-xl sm:text-2xl font-semibold text-[#a47551] mb-1 sm:mb-2"
+        >
+          Faça seu pedido online
+        </h2>
+        <p class="text-sm sm:text-base text-gray-700 text-center">
+          Escolha entre nossos sabores exclusivos e receba em casa.<br
+            class="hidden sm:block"
+          />
+          Pedido mínimo de <b>20 unidades</b>.
+        </p>
         <a
           href="cardapio.html"
-          class="w-full sm:w-2/3 bg-[#a47551] hover:bg-[#916546] text-white px-6 py-3 rounded-xl text-lg font-semibold transition"
+          class="bg-[#a47551] hover:bg-[#916546] text-white px-4 sm:px-8 py-2.5 sm:py-4 rounded-full text-base sm:text-lg font-bold shadow-lg transition-all duration-200 flex items-center gap-2 mt-1 sm:mt-2 w-full sm:w-auto justify-center"
         >
+          <svg
+            class="w-5 h-5 sm:w-6 sm:h-6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
           Ver Cardápio
         </a>
-
-        <button
-          id="toggleComoFunciona"
-          class="w-full sm:w-2/3 bg-[#a47551] hover:bg-[#916546] text-white px-6 py-3 rounded-xl text-lg font-semibold transition"
+        <div
+          class="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full justify-center mt-2 sm:mt-4"
         >
-          Como Funciona
-        </button>
-
-        <button
-          id="toggleFAQ"
-          class="w-full sm:w-2/3 bg-[#a47551] hover:bg-[#916546] text-white px-6 py-3 rounded-xl text-lg font-semibold transition"
-        >
-          FAQ
-        </button>
-      </div>
-
-      <section
-        id="comoFuncionaSection"
-        class="hidden mt-4 text-left space-y-4 animate-fade-in"
-      >
-        <h2 class="text-2xl font-bold border-b border-[#c9b8a2] pb-2">
-          Como Funciona
-        </h2>
-        <ul class="list-disc ml-6 text-base text-[#5c3b1e] space-y-1">
-          <li>Escolha seus pudins favoritos no cardápio</li>
-          <li>Adicione ao carrinho e preencha seu nome</li>
-          <li>Selecione a forma de pagamento</li>
-          <li>Finalize o pedido via WhatsApp (mínimo de 20 unidades)</li>
-          <li>Retirada no local em Salvador/BA</li>
-        </ul>
-      </section>
-
-      <section
-        id="faqSection"
-        class="hidden mt-4 text-left space-y-4 animate-fade-in"
-      >
-        <h2 class="text-2xl font-bold border-b border-[#c9b8a2] pb-2">FAQ</h2>
-        <div>
-          <h3 class="font-semibold">📅 Qual o prazo para pedidos?</h3>
-          <p class="text-[#5c3b1e] text-sm">
-            Pedidos devem ser feitos com 24h de antecedência.
-          </p>
-        </div>
-        <div>
-          <h3 class="font-semibold">🛒 Qual a quantidade mínima?</h3>
-          <p class="text-[#5c3b1e] text-sm">
-            O pedido mínimo é de 20 unidades.
-          </p>
-        </div>
-        <div>
-          <h3 class="font-semibold">📍 Onde ficamos?</h3>
-          <p class="text-[#5c3b1e] text-sm">
-            Rua Lívia Giffoni, 490, Luis Anselmo, Salvador - BA, 40261-050
-          </p>
-        </div>
-        <div>
-          <h3 class="font-semibold">🕘 Qual o horário de funcionamento?</h3>
-          <p class="text-[#5c3b1e] text-sm">Segunda a sexta, das 9h às 17h.</p>
+          <a
+            href="https://wa.me/5571986961217?text=Olá! Gostaria de saber mais sobre os pudins."
+            target="_blank"
+            class="flex-1 bg-[#e2cdb0] hover:bg-[#d1b07a] text-[#a47551] px-4 sm:px-6 py-3 rounded-xl flex items-center justify-center gap-2 shadow transition text-sm sm:text-base font-semibold"
+          >
+            <img
+              src="https://img.icons8.com/ios-filled/24/a47551/whatsapp.png"
+              alt="WhatsApp"
+              class="w-5 h-5"
+            />
+            Fale no WhatsApp
+          </a>
+          <a
+            href="https://www.instagram.com/papudim/"
+            target="_blank"
+            class="flex-1 bg-[#e2cdb0] hover:bg-[#d1b07a] text-[#a47551] px-4 sm:px-6 py-3 rounded-xl flex items-center justify-center gap-2 shadow transition text-sm sm:text-base font-semibold"
+          >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5A4.25 4.25 0 0 0 20.5 16.25v-8.5A4.25 4.25 0 0 0 16.25 3.5h-8.5zm4.25 3.25a5.25 5.25 0 1 1 0 10.5 5.25 5.25 0 0 1 0-10.5zm0 1.5a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5zm5.25.75a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
+              />
+            </svg>
+            Instagram
+          </a>
         </div>
       </section>
-    </div>
+    </main>
 
-    <script>
-      // Alternar visibilidade da seção "Como Funciona" com animação
-      document
-        .getElementById("toggleComoFunciona")
-        .addEventListener("click", () => {
-          const section = document.getElementById("comoFuncionaSection");
-          section.classList.toggle("hidden");
-          section.classList.add("animate-fade-in");
-        });
-
-      // Alternar visibilidade da seção "FAQ" com animação
-      document.getElementById("toggleFAQ").addEventListener("click", () => {
-        const section = document.getElementById("faqSection");
-        section.classList.toggle("hidden");
-        section.classList.add("animate-fade-in");
-      });
-    </script>
+    <footer
+      class="mt-8 sm:mt-12 mb-4 text-center text-gray-500 text-xs sm:text-sm px-2"
+    >
+      &copy; 2025 Papudim.
+    </footer>
   </body>
 </html>
