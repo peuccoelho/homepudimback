@@ -49,7 +49,7 @@ const tentativasLogin = {};
 const MAX_TENTATIVAS = 5;
 const BLOQUEIO_MINUTOS = 10;
 
-// login simples
+// login 
 app.post("/api/login", (req, res) => {
   const ip = req.ip;
   tentativasLogin[ip] = tentativasLogin[ip] || { count: 0, bloqueadoAte: null };
@@ -67,7 +67,7 @@ app.post("/api/login", (req, res) => {
 
   tentativasLogin[ip].count++;
   if (tentativasLogin[ip].count >= MAX_TENTATIVAS) {
-    tentativasLogin[ip].bloqueadoAte = Date.now() + BLOQUEIO_MINUTOS * 60 * 1000;
+    tentativasLogin[ip].bloqueadoAte = Date.now() + BLOQUEIO_MINUTAS * 60 * 1000;
   }
   return res.status(401).json({ erro: "Senha incorreta" });
 });
@@ -94,21 +94,31 @@ function autenticar(req, res, next) {
   }
 }
 
+const PRECOS_PRODUTOS = {
+  "Pudim de Café": 8.6,
+  "Pudim de Doce de Leite": 8.9,
+  "Pudim Tradicional": 7.9,
+  "Chocolate Branco c/ Calda de Caramelo": 9.5,
+  "Chocolate Branco c/ Calda de Morango": 10.6,
+  "Pudim de Coco": 9.3,
+  "Pudim de Leite Ninho": 9.1,
+  "Chocolate ao Leite c/ Calda de Maracujá": 9.9,
+  "Chocolate ao Leite c/ Calda de Caramelo": 9.9,
+  "Pudim de Abacaxi": 8.9
+};
 
-// Criar pedido
+// pedido
 app.post("/api/pagar", async (req, res) => {
   const pedido = req.body;
 
-  // Validação básica
+  // Validação 
   if (
     !pedido.cliente ||
     !pedido.email ||
     !pedido.celular ||
     !pedido.pagamento ||
     !Array.isArray(pedido.itens) ||
-    pedido.itens.length === 0 ||
-    !pedido.total ||
-    typeof pedido.total !== "number"
+    pedido.itens.length === 0
   ) {
     return res.status(400).json({ erro: "Dados do pedido inválidos." });
   }
@@ -126,10 +136,40 @@ app.post("/api/pagar", async (req, res) => {
     return str.replace(/[<>"'`\\;]/g, "");
   }
 
-  // No início do endpoint /api/pagar, sanitize os campos:
   pedido.cliente = sanitizeInput(pedido.cliente);
   pedido.email = sanitizeInput(pedido.email);
   pedido.celular = sanitizeInput(pedido.celular);
+
+  let totalCalculado = 0;
+  const itensSanitizados = [];
+
+  for (const item of pedido.itens) {
+    const precoOficial = PRECOS_PRODUTOS[item.nome];
+    if (
+      !precoOficial ||
+      typeof item.quantidade !== "number" ||
+      item.quantidade < 1
+    ) {
+      return res.status(400).json({ erro: "Itens do pedido inválidos." });
+    }
+    totalCalculado += precoOficial * item.quantidade;
+    itensSanitizados.push({
+      nome: sanitizeInput(item.nome),
+      preco: precoOficial,
+      peso: sanitizeInput(item.peso || ""),
+      quantidade: item.quantidade
+    });
+  }
+
+  totalCalculado = Number(totalCalculado.toFixed(2));
+
+  const totalUnidades = itensSanitizados.reduce((sum, item) => sum + item.quantidade, 0);
+  if (totalUnidades < 20) {
+    return res.status(400).json({ erro: "A quantidade mínima para pedidos é de 20 unidades." });
+  }
+
+  pedido.itens = itensSanitizados;
+  pedido.total = totalCalculado;
 
   const pedidoId = `pedido-${Date.now()}`;
 pedido.id = pedidoId;
@@ -143,7 +183,7 @@ await pedidosCollection.doc(pedidoId).set(pedido);
   try {
     console.log("Criando cliente:", cliente);
 
-    // Criar cliente
+    // cliente
     const clienteRes = await fetch(`${ASAAS_API}v3/customers`, {
       method: "POST",
       headers: {
@@ -173,7 +213,7 @@ await pedidosCollection.doc(pedidoId).set(pedido);
 
     console.log("Cliente criado:", clienteData.id);
 
-    // Criar cobrança
+    // cobrança
     const cobrancaRes = await fetch(`${ASAAS_API}v3/payments`, {
       method: "POST",
       headers: {
@@ -223,7 +263,7 @@ console.log("Cobrança criada:", cobranca.invoiceUrl);
   }
 });
 
-// WhatsApp via CallMeBot
+// CallMeBot
 function enviarWhatsAppPedido(pedido) {
   const numero = process.env.CALLMEBOT_NUMERO;
   const apikey = process.env.CALLMEBOT_APIKEY;
@@ -248,7 +288,7 @@ Itens: ${itensTexto}`;
     .catch(err => console.error("Erro ao enviar WhatsApp:", err));
 }
 
-// Webhook de pagamento do Asaas
+// Webhook 
 app.post("/api/pagamento-webhook", async (req, res) => {
   const body = req.body;
 
