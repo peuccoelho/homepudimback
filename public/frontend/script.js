@@ -94,6 +94,7 @@ function atualizarCarrinho() {
   carrinhoContainer.innerHTML = "";
 
   if (carrinho.length === 0) {
+    // Protege contra XSS no innerHTML
     carrinhoContainer.innerHTML =
       '<li class="text-gray-500 italic">Nenhum item no carrinho</li>';
     const aviso = document.getElementById("avisoMinimo");
@@ -105,8 +106,9 @@ function atualizarCarrinho() {
   carrinho.forEach((item, i) => {
     const li = document.createElement("li");
     li.className = "flex justify-between items-center gap-4";
+    // Protege contra XSS nos nomes dos itens
     li.innerHTML = `
-      <span class="flex-1">${item.nome} (${item.peso})</span>
+      <span class="flex-1">${escapeHTML(item.nome)} (${escapeHTML(item.peso)})</span>
       <input type="number" min="1" value="${item.quantidade}" onchange="atualizarQuantidade(${i}, this.value)" class="w-16 text-center border rounded" />
       <span class="text-sm text-gray-600">R$ ${(item.preco * item.quantidade).toFixed(2).replace(".", ",")}</span>
       <button class="text-red-600 hover:underline text-sm" onclick="removerDoCarrinho(${i})">Remover</button>
@@ -117,6 +119,7 @@ function atualizarCarrinho() {
   const total = carrinho.reduce((sum, item) => sum + item.preco * item.quantidade, 0);
   const totalLi = document.createElement("li");
   totalLi.className = "font-bold border-t border-gray-300 pt-2 mt-2 flex justify-between";
+  // Não há dados do usuário aqui, mas se quiser garantir:
   totalLi.innerHTML = `<span>Total</span><span>R$ ${total.toFixed(2).replace(".", ",")}</span>`;
   carrinhoContainer.appendChild(totalLi);
 
@@ -135,6 +138,16 @@ function atualizarCarrinho() {
     (nomePreenchido ? 33 : 0) +
     (pagamentoEscolhido ? 34 : 0);
   if (barraProgresso) barraProgresso.style.width = `${progresso}%`;
+}
+
+// Função para escapar HTML (adicione no topo do arquivo)
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 btnFinalizar.addEventListener("click", async () => {

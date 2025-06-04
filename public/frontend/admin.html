@@ -135,10 +135,31 @@
     />
 
     <script>
+      function escapeHTML(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
       const token = localStorage.getItem("adminToken");
       if (!token) {
         alert("Acesso negado!");
         window.location.href = "/admin-login.html";
+      } else {
+        try {
+          const tokenData = JSON.parse(atob(token.split(".")[1]));
+          if (Date.now() / 1000 > tokenData.exp) {
+            alert("Sessão expirada!");
+            localStorage.removeItem("adminToken");
+            window.location.href = "/admin-login.html";
+          }
+        } catch (e) {
+          localStorage.removeItem("adminToken");
+          window.location.href = "/admin-login.html";
+        }
       }
 
       let todosPedidos = [];
@@ -186,9 +207,9 @@
 
             linha.className = "hover:bg-[#f3e8df] transition";
             linha.innerHTML = `
-              <td class="py-2 px-3">${pedido.cliente}</td>
-              <td class="py-2 px-3">${pedido.email || "-"}</td>
-              <td class="py-2 px-3">${pedido.celular || "-"}</td>
+              <td class="py-2 px-3">${escapeHTML(pedido.cliente)}</td>
+              <td class="py-2 px-3">${escapeHTML(pedido.email || "-")}</td>
+              <td class="py-2 px-3">${escapeHTML(pedido.celular || "-")}</td>
               <td class="py-2 px-3">R$ ${pedido.total.toFixed(2)}</td>
               <td class="py-2 px-3">
                 <span class="inline-block px-2 py-1 rounded-full text-xs font-semibold ${
@@ -196,11 +217,11 @@
                     ? "bg-green-100 text-green-700"
                     : "bg-yellow-100 text-yellow-700"
                 }">
-                  ${pedido.status}
+                  ${escapeHTML(pedido.status)}
                 </span>
               </td>
-              <td class="py-2 px-3">${itens}</td>
-              <td class="py-2 px-3">${data}</td>
+              <td class="py-2 px-3">${escapeHTML(itens)}</td>
+              <td class="py-2 px-3">${escapeHTML(data)}</td>
             `;
             tabela.appendChild(linha);
           });

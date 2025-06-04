@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import admin from "firebase-admin";
+import helmet from "helmet";
 
 dotenv.config();
 console.log("Token carregado:", process.env.access_token?.slice(0, 10) + "...");
@@ -37,18 +38,36 @@ app.use(cors({
   origin: "https://papudim.netlify.app",
   credentials: true,
 }));
-app.use(express.json());
+app.use(express.json({ limit: "200kb" }));
+app.use(helmet());
 
 if (!fs.existsSync(DB_FILE)) {
   fs.writeFileSync(DB_FILE, "[]");
 }
 
+const tentativasLogin = {};
+const MAX_TENTATIVAS = 5;
+const BLOQUEIO_MINUTOS = 10;
+
 // login simples
 app.post("/api/login", (req, res) => {
+  const ip = req.ip;
+  tentativasLogin[ip] = tentativasLogin[ip] || { count: 0, bloqueadoAte: null };
+
+  if (tentativasLogin[ip].bloqueadoAte && Date.now() < tentativasLogin[ip].bloqueadoAte) {
+    return res.status(429).json({ erro: "Muitas tentativas. Tente novamente mais tarde." });
+  }
+
   const { senha } = req.body;
   if (senha === "papudim123") {
+    tentativasLogin[ip] = { count: 0, bloqueadoAte: null };
     const token = jwt.sign({ admin: true }, SECRET_KEY, { expiresIn: "12h" });
     return res.json({ token });
+  }
+
+  tentativasLogin[ip].count++;
+  if (tentativasLogin[ip].count >= MAX_TENTATIVAS) {
+    tentativasLogin[ip].bloqueadoAte = Date.now() + BLOQUEIO_MINUTOS * 60 * 1000;
   }
   return res.status(401).json({ erro: "Senha incorreta" });
 });
@@ -79,6 +98,39 @@ function autenticar(req, res, next) {
 // Criar pedido
 app.post("/api/pagar", async (req, res) => {
   const pedido = req.body;
+
+  // Validação básica
+  if (
+    !pedido.cliente ||
+    !pedido.email ||
+    !pedido.celular ||
+    !pedido.pagamento ||
+    !Array.isArray(pedido.itens) ||
+    pedido.itens.length === 0 ||
+    !pedido.total ||
+    typeof pedido.total !== "number"
+  ) {
+    return res.status(400).json({ erro: "Dados do pedido inválidos." });
+  }
+
+  // Validação de e-mail e celular
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pedido.email)) {
+    return res.status(400).json({ erro: "E-mail inválido." });
+  }
+  if (!/^\d{10,15}$/.test(pedido.celular.replace(/\D/g, ""))) {
+    return res.status(400).json({ erro: "Celular inválido." });
+  }
+
+  function sanitizeInput(str) {
+    if (typeof str !== "string") return "";
+    return str.replace(/[<>"'`\\;]/g, "");
+  }
+
+  // No início do endpoint /api/pagar, sanitize os campos:
+  pedido.cliente = sanitizeInput(pedido.cliente);
+  pedido.email = sanitizeInput(pedido.email);
+  pedido.celular = sanitizeInput(pedido.celular);
+
   const pedidoId = `pedido-${Date.now()}`;
 pedido.id = pedidoId;
 pedido.status = "pendente"; 
