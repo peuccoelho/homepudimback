@@ -16,6 +16,7 @@ const PRECOS_PRODUTOS = {
 };
 
 export async function criarPedido(req, res) {
+  console.log("Recebido pedido:", req.body); // <-- Adicione isso
   const { pedidosCollection, ASAAS_API } = req.app.locals;
   const pedido = req.body;
 
@@ -109,6 +110,7 @@ export async function criarPedido(req, res) {
     });
 
   } catch (error) {
+    console.error("Erro ao criar pedido:", error); // <-- Adicione isso
     res.status(500).json({ erro: error.message });
   }
 }
