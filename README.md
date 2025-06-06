@@ -18,7 +18,7 @@ O Papudim permite que clientes façam pedidos personalizados de pudins, acompanh
 
 - **Frontend:** HTML, CSS (Tailwind), JavaScript
 - **Backend:** Node.js, Express, Firebase Firestore, JWT, dotenv, helmet, cors, node-fetch
-- **Microsserviço de Insights:** Python (Flask ou FastAPI), integração via HTTP
+- **Microsserviço de Insights:** Python (Flask), integração via HTTP
 - **APIs Externas:**
   - **Asaas API:** Emissão de cobranças e pagamentos (PIX, cartão)
   - **Firebase Firestore:** Armazenamento dos pedidos
