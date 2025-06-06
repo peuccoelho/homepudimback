@@ -157,6 +157,7 @@ btnFinalizar.addEventListener("click", async () => {
   const celular = celularClienteInput.value.trim();
   const pagamento = formaPagamentoInput.value;
   const parcelas = parseInt(document.getElementById("parcelas")?.value || "1");
+  const totalUnidades = carrinho.reduce((sum, item) => sum + item.quantidade, 0); // <-- ADICIONE ESTA LINHA
 
   if (!nome || !email || !celular || !pagamento) {
     exibirToast("Preencha todos os campos antes de finalizar o pedido.");
