@@ -16,11 +16,11 @@ const PRECOS_PRODUTOS = {
 };
 
 export async function criarPedido(req, res) {
-  console.log("Recebido pedido:", req.body); // <-- Adicione isso
+  console.log("Recebido pedido:", req.body); 
   const { pedidosCollection, ASAAS_API } = req.app.locals;
   const pedido = req.body;
 
-  // Validação 
+  // validação 
   if (
     !pedido.cliente ||
     !pedido.email ||
@@ -84,7 +84,7 @@ export async function criarPedido(req, res) {
   const { cliente, email, celular, total, pagamento } = pedido;
 
   try {
-    // Cria cliente na Asaas
+    // cliente Asaas
     const clienteData = await criarClienteAsaas(
       ASAAS_API,
       process.env.access_token,
@@ -93,7 +93,7 @@ export async function criarPedido(req, res) {
       celular
     );
 
-    // Cria cobrança na Asaas
+    // cobrança Asaas
     const cobranca = await criarCobrancaAsaas(
       ASAAS_API,
       process.env.access_token,
@@ -110,7 +110,7 @@ export async function criarPedido(req, res) {
     });
 
   } catch (error) {
-    console.error("Erro ao criar pedido:", error); // <-- Adicione isso
+    console.error("Erro ao criar pedido:", error); 
     res.status(500).json({ erro: error.message });
   }
 }
