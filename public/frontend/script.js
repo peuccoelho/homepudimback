@@ -211,7 +211,7 @@ btnFinalizar.addEventListener("click", async () => {
 
     if (data.url && data.pedidoId) {
       abaPagamento.location.href = data.url;
-      window.location.href = `aguardando.html?id=${data.pedidoId}`;
+      exibirToast("Finalize o pagamento na nova aba. Você será avisado por WhatsApp após a confirmação.");
     } else {
       exibirToast("Erro ao redirecionar para pagamento. Tente novamente.");
       abaPagamento.close();
