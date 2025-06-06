@@ -6,7 +6,7 @@ import { pedidoLimiter } from "../middlewares/rateLimit.js";
 const router = express.Router();
 
 router.post("/pagar", pedidoLimiter, criarPedido);
-router.post("/pagamento-webhook", pedidoLimiter, pagamentoWebhook);
+router.post("/pagamento-webhook", pagamentoWebhook);
 router.get("/status-pedido", pedidoLimiter, statusPedido);
 router.get("/admin-pedidos", pedidoLimiter, autenticar, adminPedidos);
 

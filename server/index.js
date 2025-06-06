@@ -82,9 +82,6 @@ app.use("/api/pagamento-webhook", pedidoLimiter);
 app.use("/api/status-pedido", pedidoLimiter);
 app.use("/api/admin-pedidos", pedidoLimiter);
 
-// Aplica proteção global contra DoS
-app.use(globalLimiter);
-
 // Disponibiliza variáveis globais para os controllers
 app.locals.pedidosCollection = pedidosCollection;
 app.locals.ASAAS_API = ASAAS_API;
