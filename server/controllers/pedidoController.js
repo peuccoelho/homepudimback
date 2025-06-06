@@ -36,13 +36,13 @@ export async function criarPedido(req, res) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pedido.email)) {
     return res.status(400).json({ erro: "E-mail inválido." });
   }
-  if (!/^\d{10,15}$/.test(pedido.celular.replace(/\D/g, ""))) {
-    return res.status(400).json({ erro: "Celular inválido." });
+  if (!/^\d{10,11}$/.test(pedido.celular)) {
+    return res.status(400).json({ erro: "Celular inválido. Use DDD + número, só números." });
   }
 
   pedido.cliente = sanitizeInput(pedido.cliente);
   pedido.email = sanitizeInput(pedido.email);
-  pedido.celular = sanitizeInput(pedido.celular);
+  pedido.celular = sanitizeInput(pedido.celular.replace(/\D/g, "")); // só números
 
   let totalCalculado = 0;
   const itensSanitizados = [];
