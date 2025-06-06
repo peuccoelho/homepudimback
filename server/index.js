@@ -11,6 +11,7 @@ import helmet from "helmet";
 
 // Importando as rotas
 import pedidoRoutes from "./routes/pedidoRoutes.js";
+import { loginLimiter, pedidoLimiter, globalLimiter } from "./middlewares/rateLimit.js";
 
 dotenv.config();
 console.log("Token carregado:", process.env.access_token?.slice(0, 10) + "...");
@@ -52,8 +53,8 @@ const tentativasLogin = {};
 const MAX_TENTATIVAS = 5;
 const BLOQUEIO_MINUTAS = 10;
 
-// Rota de login admin
-app.post("/api/login", (req, res) => {
+// Rota de login admin com rate limit
+app.post("/api/login", loginLimiter, (req, res) => {
   const ip = req.ip;
   tentativasLogin[ip] = tentativasLogin[ip] || { count: 0, bloqueadoAte: null };
 
@@ -74,6 +75,15 @@ app.post("/api/login", (req, res) => {
   }
   return res.status(401).json({ erro: "Senha incorreta" });
 });
+
+// Aplica rate limiting nas rotas sensíveis ANTES de passar para o router
+app.use("/api/pagar", pedidoLimiter);
+app.use("/api/pagamento-webhook", pedidoLimiter);
+app.use("/api/status-pedido", pedidoLimiter);
+app.use("/api/admin-pedidos", pedidoLimiter);
+
+// Aplica proteção global contra DoS
+app.use(globalLimiter);
 
 // Disponibiliza variáveis globais para os controllers
 app.locals.pedidosCollection = pedidosCollection;

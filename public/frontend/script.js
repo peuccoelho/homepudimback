@@ -157,7 +157,7 @@ btnFinalizar.addEventListener("click", async () => {
   const pagamento = formaPagamentoInput.value;
 
   if (!nome || !email || !celular || !pagamento) {
-    alert("Preencha todos os campos antes de finalizar o pedido.");
+    exibirToast("Preencha todos os campos antes de finalizar o pedido.");
     return;
   }
 
@@ -193,6 +193,10 @@ btnFinalizar.addEventListener("click", async () => {
   // Abre uma aba temporária (ainda sem URL)
   const abaPagamento = window.open("", "_blank");
 
+  btnFinalizar.disabled = true;
+  const textoOriginal = btnFinalizar.innerHTML;
+  btnFinalizar.innerHTML = `<svg class="animate-spin h-5 w-5 mr-2 inline" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>Processando...`;
+
   try {
     const resposta = await fetch("https://homepudimback.onrender.com/api/pagar", {
       method: "POST",
@@ -206,16 +210,18 @@ btnFinalizar.addEventListener("click", async () => {
 
     if (data.url && data.pedidoId) {
       abaPagamento.location.href = data.url;
-
-     window.location.href = `aguardando.html?id=${data.pedidoId}`;
+      window.location.href = `aguardando.html?id=${data.pedidoId}`;
     } else {
-      alert("Erro ao redirecionar para pagamento.");
-      abaPagamento.close(); 
+      exibirToast("Erro ao redirecionar para pagamento. Tente novamente.");
+      abaPagamento.close();
     }
   } catch (erro) {
     console.error("Erro no pagamento:", erro);
-    alert("Falha na conexão com o servidor.");
+    exibirToast("Falha na conexão com o servidor. Tente novamente em instantes.");
     abaPagamento.close();
+  } finally {
+    btnFinalizar.disabled = false;
+    btnFinalizar.innerHTML = textoOriginal;
   }
 });
 
@@ -266,3 +272,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 verificarHorarioFuncionamento();
 atualizarCarrinho();
+
+function mostrarLoader() {
+  if (barraProgresso) barraProgresso.style.width = "100%";
+}
+function esconderLoader() {
+  if (barraProgresso) barraProgresso.style.width = "0";
+}
