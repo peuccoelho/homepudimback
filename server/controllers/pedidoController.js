@@ -44,6 +44,11 @@ export async function criarPedido(req, res) {
   pedido.email = sanitizeInput(pedido.email);
   pedido.celular = sanitizeInput(pedido.celular.replace(/\D/g, "")); // só números
 
+  // Validação de celular DEPOIS de remover caracteres não numéricos
+  if (!/^\d{11}$/.test(pedido.celular)) {
+    return res.status(400).json({ erro: "Celular inválido. Use DDD + número, só números (ex: 71999999999)." });
+  }
+
   let totalCalculado = 0;
   const itensSanitizados = [];
 
