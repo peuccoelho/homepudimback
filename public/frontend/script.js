@@ -95,7 +95,7 @@ function atualizarCarrinho() {
   carrinhoContainer.innerHTML = "";
 
   if (carrinho.length === 0) {
-    // Protege contra XSS no innerHTML
+    // contra XSS no innerHTML
     carrinhoContainer.innerHTML =
       '<li class="text-gray-500 italic">Nenhum item no carrinho</li>';
     const aviso = document.getElementById("avisoMinimo");
@@ -107,7 +107,7 @@ function atualizarCarrinho() {
   carrinho.forEach((item, i) => {
     const li = document.createElement("li");
     li.className = "flex justify-between items-center gap-4";
-    // Protege contra XSS nos nomes dos itens
+    // contra XSS nos nomes dos itens
     li.innerHTML = `
       <span class="flex-1">${escapeHTML(item.nome)} (${escapeHTML(item.peso)})</span>
       <input type="number" min="1" value="${item.quantidade}" onchange="atualizarQuantidade(${i}, this.value)" class="w-16 text-center border rounded" />
@@ -141,7 +141,6 @@ function atualizarCarrinho() {
   if (barraProgresso) barraProgresso.style.width = `${progresso}%`;
 }
 
-// Função para escapar HTML (adicione no topo do arquivo)
 function escapeHTML(str) {
   return String(str)
     .replace(/&/g, "&amp;")
@@ -164,7 +163,6 @@ btnFinalizar.addEventListener("click", async () => {
     return;
   }
 
-  // Validação simples de e-mail e celular
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     exibirToast("Digite um e-mail válido.");
     return;
@@ -187,13 +185,14 @@ btnFinalizar.addEventListener("click", async () => {
     email,
     celular,
     pagamento,
-    parcelas, // 👈 NOVO
+    parcelas, 
     itens: carrinho,
     total
   };
 
-  // Abre uma aba temporária (ainda sem URL)
-  const abaPagamento = window.open("", "_blank");
+  const abaPagamento = window.open("preparando-pagamento.html", "_blank");
+
+  mostrarLoader();
 
   btnFinalizar.disabled = true;
   const textoOriginal = btnFinalizar.innerHTML;
@@ -226,6 +225,7 @@ btnFinalizar.addEventListener("click", async () => {
   } finally {
     btnFinalizar.disabled = false;
     btnFinalizar.innerHTML = textoOriginal;
+    esconderLoader(); 
   }
 });
 
@@ -256,7 +256,7 @@ formaPagamentoInput.addEventListener("change", () => {
     selectParcelas.style.display = "none";
   }
 });
-selectParcelas.style.display = "none"; // Esconde inicialmente
+selectParcelas.style.display = "none"; 
 
 function exibirToast(mensagem) {
   const toast = document.createElement("div");

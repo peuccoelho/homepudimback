@@ -2,8 +2,7 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pagamento Confirmado | Papudim</title>
+    <title>Preparando pagamento... | Papudim</title>
     <link rel="icon" href="papudimlogo.png" />
     <link
       href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap"
@@ -15,6 +14,14 @@
         font-family: "Quicksand", sans-serif;
         background: linear-gradient(135deg, #fdf6e3 0%, #f8e7d1 100%);
         color: #3e2c23;
+      }
+      .animate-spin {
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
       }
     </style>
   </head>
@@ -29,18 +36,35 @@
         alt="Logo Papudim"
         class="w-16 h-16 mb-4 rounded-full shadow border-4 border-[#e2cdb0]"
       />
-      <h1 class="text-3xl font-bold text-green-600 mb-2">
-        ✅ Pagamento confirmado!
+      <h1 class="text-2xl font-bold text-[#a47551] mb-2">
+        Preparando pagamento...
       </h1>
+      <div class="my-6 flex justify-center">
+        <svg
+          style="width: 48px; height: 48px; color: #a47551"
+          class="animate-spin"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+            fill="none"
+          />
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v8z"
+          />
+        </svg>
+      </div>
       <p class="text-base text-gray-700 mb-2">
-        Recebemos seu pedido com sucesso.<br />
-        Em breve você receberá atualizações pelo WhatsApp.
+        Aguarde enquanto preparamos o link de pagamento.<br />
+        Você será direcionado automaticamente.
       </p>
-      <a
-        href="index.html"
-        class="mt-6 inline-block bg-[#a47551] hover:bg-[#916546] text-white px-6 py-3 rounded-xl transition font-semibold"
-        >Voltar para o início</a
-      >
     </div>
     <footer class="mt-10 text-sm text-gray-500 text-center">
       &copy; 2025 Papudim. Todos os direitos reservados.

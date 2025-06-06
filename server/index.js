@@ -44,17 +44,15 @@ app.use(cors({
 app.use(express.json({ limit: "200kb" }));
 app.use(helmet());
 
-// Inicializa arquivo local de pedidos se necessário (opcional, pode remover se só usar Firestore)
 if (!fs.existsSync(DB_FILE)) {
   fs.writeFileSync(DB_FILE, "[]");
 }
 
-// Controle de tentativas de login
 const tentativasLogin = {};
 const MAX_TENTATIVAS = 5;
 const BLOQUEIO_MINUTAS = 10;
 
-// Rota de login admin com rate limit
+// login admin com rate limit
 app.post("/api/login", loginLimiter, (req, res) => {
   const ip = req.ip;
   tentativasLogin[ip] = tentativasLogin[ip] || { count: 0, bloqueadoAte: null };
@@ -77,17 +75,14 @@ app.post("/api/login", loginLimiter, (req, res) => {
   return res.status(401).json({ erro: "Senha incorreta" });
 });
 
-// Aplica rate limiting nas rotas sensíveis ANTES de passar para o router
 app.use("/api/pagar", pedidoLimiter);
 app.use("/api/pagamento-webhook", pedidoLimiter);
 app.use("/api/status-pedido", pedidoLimiter);
 app.use("/api/admin-pedidos", pedidoLimiter);
 
-// Disponibiliza variáveis globais para os controllers
 app.locals.pedidosCollection = pedidosCollection;
 app.locals.ASAAS_API = ASAAS_API;
 
-// Usa as rotas organizadas
 app.use("/api", pedidoRoutes);
 
 app.listen(PORT, () => {

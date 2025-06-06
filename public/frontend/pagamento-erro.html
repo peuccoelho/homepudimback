@@ -4,35 +4,45 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Erro no Pagamento | Papudim</title>
+    <link rel="icon" href="papudimlogo.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body {
-        font-family: "Segoe UI", sans-serif;
-        background-color: #fef2f2;
+        font-family: "Quicksand", sans-serif;
+        background: linear-gradient(135deg, #fdf6e3 0%, #f8e7d1 100%);
+        color: #3e2c23;
       }
     </style>
   </head>
   <body
-    class="flex flex-col items-center justify-center min-h-screen text-center px-4"
+    class="min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-br from-[#fdf6e3] to-[#f8e7d1]"
   >
-    <div class="bg-white p-8 rounded-2xl shadow-md max-w-md w-full">
-      <h1 class="text-3xl font-bold text-red-600 mb-4">
+    <div
+      class="bg-white p-8 rounded-2xl shadow-md max-w-md w-full flex flex-col items-center"
+    >
+      <img
+        src="papudimlogo.png"
+        alt="Logo Papudim"
+        class="w-16 h-16 mb-4 rounded-full shadow border-4 border-[#e2cdb0]"
+      />
+      <h1 class="text-3xl font-bold text-red-600 mb-2">
         ❌ Pagamento não confirmado
       </h1>
-      <p class="text-lg text-gray-700 mb-6">
-        Houve um problema ao processar seu pagamento.
-      </p>
-      <p class="text-sm text-gray-600 mb-2">
+      <p class="text-base text-gray-700 mb-2">
+        Houve um problema ao processar seu pagamento.<br />
         Você pode tentar novamente ou entrar em contato conosco pelo WhatsApp.
       </p>
       <a
-        href="/"
-        class="mt-6 inline-block bg-[#a47551] hover:bg-[#916546] text-white px-6 py-3 rounded-xl transition"
+        href="index.html"
+        class="mt-6 inline-block bg-[#a47551] hover:bg-[#916546] text-white px-6 py-3 rounded-xl transition font-semibold"
         >Voltar ao cardápio</a
       >
     </div>
-
-    <footer class="mt-10 text-sm text-gray-500">
+    <footer class="mt-10 text-sm text-gray-500 text-center">
       &copy; 2025 Papudim. Todos os direitos reservados.
     </footer>
   </body>

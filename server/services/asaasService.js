@@ -10,7 +10,7 @@ export async function criarClienteAsaas(ASAAS_API, access_token, cliente, email,
     body: JSON.stringify({
       name: cliente,
       email: email,
-      cpfCnpj: "12345678909", // Substitua por valor real se necessário
+      cpfCnpj: "12345678909", 
       mobilePhone: celular
     })
   });
@@ -30,7 +30,7 @@ export async function criarCobrancaAsaas(
   total,
   pedidoId,
   clienteNome,
-  parcelas = 1 // NOVO
+  parcelas = 1 
 ) {
   const body = {
     customer: clienteId,

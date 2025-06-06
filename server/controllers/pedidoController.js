@@ -32,7 +32,6 @@ export async function criarPedido(req, res) {
     return res.status(400).json({ erro: "Dados do pedido inválidos." });
   }
 
-  // Validação de e-mail e celular
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pedido.email)) {
     return res.status(400).json({ erro: "E-mail inválido." });
   }
@@ -42,9 +41,8 @@ export async function criarPedido(req, res) {
 
   pedido.cliente = sanitizeInput(pedido.cliente);
   pedido.email = sanitizeInput(pedido.email);
-  pedido.celular = sanitizeInput(pedido.celular.replace(/\D/g, "")); // só números
+  pedido.celular = sanitizeInput(pedido.celular.replace(/\D/g, "")); 
 
-  // Validação de celular DEPOIS de remover caracteres não numéricos
   if (!/^\d{11}$/.test(pedido.celular)) {
     return res.status(400).json({ erro: "Celular inválido. Use DDD + número, só números (ex: 71999999999)." });
   }
@@ -107,7 +105,7 @@ export async function criarPedido(req, res) {
       total,
       pedidoId,
       clienteData.name,
-      pedido.parcelas // Passe parcelas aqui!
+      pedido.parcelas 
     );
 
     res.json({
@@ -130,7 +128,7 @@ function enviarWhatsAppPedido(pedido) {
     .join(" | ");
   const total = Number(pedido.total).toFixed(2);
 
-  // Adiciona info de parcelamento se for cartão e parcelas > 1
+
   let infoParcelas = "";
   if (
     pedido.pagamento &&

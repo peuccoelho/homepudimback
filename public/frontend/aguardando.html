@@ -2,8 +2,28 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
-    <title>Aguardando pagamento...</title>
+    <title>Aguardando pagamento... | Papudim</title>
     <link rel="icon" href="papudimlogo.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: "Quicksand", sans-serif;
+        background: linear-gradient(135deg, #fdf6e3 0%, #f8e7d1 100%);
+        color: #3e2c23;
+      }
+      .animate-spin {
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
     <script>
       const urlParams = new URLSearchParams(window.location.search);
       const pedidoId = urlParams.get("id");
@@ -20,13 +40,10 @@
           const dados = await res.json();
 
           if (dados.status === "pago") {
-            console.log("✅ Redirecionando para sucesso.html...");
             window.location.href = "pagamento-sucesso.html";
-          } else {
-            console.log("⏳ Ainda não pago. Status atual:", dados.status);
           }
         } catch (e) {
-          console.error("Erro ao verificar status do pedido:", e);
+          // Silencie erro para não assustar o usuário
         }
       }
 
@@ -34,24 +51,53 @@
       verificarStatus();
     </script>
   </head>
-  <body style="text-align: center; font-family: sans-serif; padding-top: 50px">
-    <h1>⏳ Aguardando pagamento...</h1>
-    <div id="spinner" style="margin: 30px 0">
-      <svg class="animate-spin h-10 w-10 text-[#a47551]" viewBox="0 0 24 24">
-        <circle
-          class="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          stroke-width="4"
-          fill="none"
-        />
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-      </svg>
+  <body
+    class="min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-br from-[#fdf6e3] to-[#f8e7d1]"
+  >
+    <div
+      class="bg-white p-8 rounded-2xl shadow-md max-w-md w-full flex flex-col items-center"
+    >
+      <img
+        src="papudimlogo.png"
+        alt="Logo Papudim"
+        class="w-16 h-16 mb-4 rounded-full shadow border-4 border-[#e2cdb0]"
+      />
+      <h1 class="text-2xl font-bold text-[#a47551] mb-2">
+        Aguardando pagamento...
+      </h1>
+      <div class="my-6 flex justify-center">
+        <svg
+          style="width: 48px; height: 48px; color: #a47551"
+          class="animate-spin"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+            fill="none"
+          />
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v8z"
+          />
+        </svg>
+      </div>
+      <p class="text-base text-gray-700 mb-2">
+        Estamos aguardando a confirmação do seu pagamento.
+      </p>
+      <p class="text-sm text-gray-500">
+        Assim que o pagamento for confirmado, você será redirecionado
+        automaticamente.<br />
+        Caso demore, não feche esta página.
+      </p>
     </div>
-    <p>
-      Você será redirecionado automaticamente após o pagamento ser confirmado.
-    </p>
+    <footer class="mt-10 text-sm text-gray-500 text-center">
+      &copy; 2025 Papudim. Todos os direitos reservados.
+    </footer>
   </body>
 </html>
