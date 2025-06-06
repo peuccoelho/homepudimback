@@ -130,12 +130,22 @@ function enviarWhatsAppPedido(pedido) {
     .join(" | ");
   const total = Number(pedido.total).toFixed(2);
 
+  // Adiciona info de parcelamento se for cartão e parcelas > 1
+  let infoParcelas = "";
+  if (
+    pedido.pagamento &&
+    pedido.pagamento.toUpperCase() === "CREDIT_CARD" &&
+    Number(pedido.parcelas) > 1
+  ) {
+    infoParcelas = `\nPagamento parcelado em ${pedido.parcelas}x no cartão.`;
+  }
+
   const mensagem = `✅ Pagamento confirmado!
 Cliente: ${pedido.cliente}
 E-mail: ${pedido.email}
 Celular: ${pedido.celular}
 Total: R$ ${total}
-Itens: ${itensTexto}`;
+Itens: ${itensTexto}${infoParcelas}`;
 
   const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(numero)}&text=${encodeURIComponent(mensagem)}&apikey=${apikey}`;
 
