@@ -24,6 +24,7 @@ const toggleInfo = document.getElementById("toggleInfo");
 const infoSection = document.getElementById("infoSection");
 const statusDiv = document.getElementById("status");
 const barraProgresso = document.getElementById("barraProgresso");
+const selectParcelas = document.getElementById("parcelas");
 
 toggleInfo?.addEventListener("click", () => {
   infoSection.classList.toggle("hidden");
@@ -155,6 +156,7 @@ btnFinalizar.addEventListener("click", async () => {
   const email = emailClienteInput.value.trim();
   const celular = celularClienteInput.value.trim();
   const pagamento = formaPagamentoInput.value;
+  const parcelas = parseInt(document.getElementById("parcelas")?.value || "1");
 
   if (!nome || !email || !celular || !pagamento) {
     exibirToast("Preencha todos os campos antes de finalizar o pedido.");
@@ -184,6 +186,7 @@ btnFinalizar.addEventListener("click", async () => {
     email,
     celular,
     pagamento,
+    parcelas, // 👈 NOVO
     itens: carrinho,
     total
   };
@@ -245,6 +248,14 @@ nomeClienteInput.addEventListener("input", validarFormulario);
 emailClienteInput.addEventListener("input", validarFormulario);
 celularClienteInput.addEventListener("input", validarFormulario);
 formaPagamentoInput.addEventListener("change", validarFormulario);
+formaPagamentoInput.addEventListener("change", () => {
+  if (formaPagamentoInput.value === "CREDIT_CARD") {
+    selectParcelas.style.display = "";
+  } else {
+    selectParcelas.style.display = "none";
+  }
+});
+selectParcelas.style.display = "none"; // Esconde inicialmente
 
 function exibirToast(mensagem) {
   const toast = document.createElement("div");

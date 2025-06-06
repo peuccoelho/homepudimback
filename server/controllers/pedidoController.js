@@ -81,7 +81,7 @@ export async function criarPedido(req, res) {
 
   await pedidosCollection.doc(pedidoId).set(pedido);
 
-  const { cliente, email, celular, total, pagamento } = pedido;
+  const { cliente, email, celular, total, pagamento, parcelas } = pedido;
 
   try {
     // cliente Asaas
@@ -101,7 +101,8 @@ export async function criarPedido(req, res) {
       pagamento,
       total,
       pedidoId,
-      clienteData.name
+      clienteData.name,
+      pedido.parcelas // Passe parcelas aqui!
     );
 
     res.json({
