@@ -163,17 +163,15 @@ btnFinalizar.addEventListener("click", async () => {
 
   // Validação simples de e-mail e celular
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    alert("Digite um e-mail válido.");
+    exibirToast("Digite um e-mail válido.");
     return;
   }
   if (!/^\d{10,15}$/.test(celular.replace(/\D/g, ""))) {
-    alert("Digite um número de celular válido (apenas números, com DDD).");
+    exibirToast("Digite um número de celular válido (apenas números, com DDD).");
     return;
   }
-
-  const totalUnidades = carrinho.reduce((sum, item) => sum + item.quantidade, 0);
   if (totalUnidades < 20) {
-    alert("A quantidade mínima para pedidos é de 20 unidades.");
+    exibirToast("A quantidade mínima para pedidos é de 20 unidades.");
     return;
   }
 
@@ -214,11 +212,13 @@ btnFinalizar.addEventListener("click", async () => {
     } else {
       exibirToast("Erro ao redirecionar para pagamento. Tente novamente.");
       abaPagamento.close();
+      setTimeout(() => window.location.href = "pagamento-erro.html", 1500);
     }
   } catch (erro) {
     console.error("Erro no pagamento:", erro);
     exibirToast("Falha na conexão com o servidor. Tente novamente em instantes.");
     abaPagamento.close();
+    setTimeout(() => window.location.href = "pagamento-erro.html", 1500);
   } finally {
     btnFinalizar.disabled = false;
     btnFinalizar.innerHTML = textoOriginal;
