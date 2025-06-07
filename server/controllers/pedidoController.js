@@ -215,6 +215,7 @@ export async function adminPedidos(req, res) {
 
 export async function atualizarStatusPedido(req, res) {
   const { pedidosCollection } = req.app.locals;
+  console.log("Body recebido para atualizar status:", req.body); // <-- ADICIONE ESTA LINHA
   const { id, status } = req.body;
   const statusValidos = ["a fazer", "em produção", "pronto", "pendente", "pago"];
 
