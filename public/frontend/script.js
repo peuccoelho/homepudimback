@@ -291,3 +291,21 @@ function mostrarLoader() {
 function esconderLoader() {
   if (barraProgresso) barraProgresso.style.width = "0";
 }
+
+async function alterarStatusPedido(id, status) {
+  const token = localStorage.getItem("adminToken");
+  const res = await fetch("https://homepudimback.onrender.com/api/atualizar-status", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token
+    },
+    body: JSON.stringify({ id, status })
+  });
+  if (res.ok) {
+    exibirToast("Status atualizado!");
+    carregarPedidos();
+  } else {
+    exibirToast("Erro ao atualizar status.");
+  }
+}

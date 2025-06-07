@@ -212,3 +212,20 @@ export async function adminPedidos(req, res) {
     res.status(500).json({ erro: "Erro ao buscar pedidos" });
   }
 }
+
+export async function atualizarStatusPedido(req, res) {
+  const { pedidosCollection } = req.app.locals;
+  const { id, status } = req.body;
+  const statusValidos = ["a fazer", "em produção", "pronto", "pendente", "pago"];
+
+  if (!statusValidos.includes(status)) {
+    return res.status(400).json({ erro: "Status inválido." });
+  }
+
+  try {
+    await pedidosCollection.doc(id).update({ status });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ erro: "Erro ao atualizar status" });
+  }
+}
