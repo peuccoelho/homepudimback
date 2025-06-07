@@ -185,9 +185,20 @@
         todosPedidos = pedidos;
 
         const filtro = document.getElementById("filtroStatus").value;
-        const filtrados = filtro
+
+        let filtrados = filtro
           ? pedidos.filter((p) => p.status === filtro)
           : pedidos;
+
+        if (!filtro) {
+          filtrados = filtrados.filter((p) => p.status !== "pronto");
+        }
+
+        filtrados.sort((a, b) => {
+          const ta = Number(a.id?.split("-")[1]) || 0;
+          const tb = Number(b.id?.split("-")[1]) || 0;
+          return tb - ta;
+        });
 
         const tabela = document.getElementById("tabelaPedidos");
         tabela.innerHTML = "";
@@ -327,7 +338,7 @@
       }
 
       function copiarMensagemPedido(nome, celular) {
-        const mensagem = `Olá, ${nome}! Seu pedido Papudim está pronto para retirada.\nEndereço: R. Luís Negreiro, 701 - Luiz Anselmo, Salvador - BA, 40265-090\nAgradecemos pela preferência!`;
+        const mensagem = `Olá, ${nome}! 😊\n\nSeu pedido Papudim está pronto para retirada!\n\nEndereço: R. Luís Negreiro, 701 - Luiz Anselmo, Salvador - BA, 40265-090\n\nAgradecemos pela sua preferência. Qualquer dúvida, estamos à disposição!\n\nBom apetite! 🍮`;
         const url = `https://wa.me/55${celular}?text=${encodeURIComponent(
           mensagem
         )}`;
