@@ -78,7 +78,6 @@
         >
           <option value="">Todos</option>
           <option value="pendente">Pendente</option>
-          <option value="pago">Pago</option>
           <option value="a fazer">A fazer</option>
           <option value="em produção">Em produção</option>
           <option value="pronto">Pronto</option>
@@ -226,6 +225,7 @@
               corLinha = "bg-yellow-100";
             else if (pedido.status === "pronto") corLinha = "bg-green-100";
             else if (pedido.status === "pendente") corLinha = "bg-gray-100";
+            else corLinha = "bg-red-200 text-red-700 font-bold"; // Outros status em vermelho
 
             linha.className = `hover:bg-[#f3e8df] transition ${corLinha}`;
             linha.innerHTML = `
