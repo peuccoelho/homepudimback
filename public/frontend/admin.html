@@ -220,7 +220,14 @@
               .map((i) => `${i.nome} x${i.quantidade}`)
               .join(", ");
 
-            linha.className = "hover:bg-[#f3e8df] transition";
+            let corLinha = "";
+            if (pedido.status === "a fazer") corLinha = "bg-red-100";
+            else if (pedido.status === "em produção")
+              corLinha = "bg-yellow-100";
+            else if (pedido.status === "pronto") corLinha = "bg-green-100";
+            else if (pedido.status === "pendente") corLinha = "bg-gray-100";
+
+            linha.className = `hover:bg-[#f3e8df] transition ${corLinha}`;
             linha.innerHTML = `
               <td class="py-2 px-3">${escapeHTML(pedido.cliente)}</td>
               <td class="py-2 px-3">${escapeHTML(pedido.email || "-")}</td>
@@ -239,9 +246,6 @@
                   <option value="pronto" ${
                     pedido.status === "pronto" ? "selected" : ""
                   }>Pronto</option>
-                  <option value="pago" ${
-                    pedido.status === "pago" ? "selected" : ""
-                  }>Pago</option>
                   <option value="pendente" ${
                     pedido.status === "pendente" ? "selected" : ""
                   }>Pendente</option>

@@ -166,10 +166,8 @@ export async function pagamentoWebhook(req, res) {
       const pedido = pedidoDoc.data();
 
       if (pedido && pedido.cliente && pedido.total) {
-        await pedidosCollection.doc(pedidoId).update({ status: "pago" });
-
+        await pedidosCollection.doc(pedidoId).update({ status: "a fazer" }); // <-- ALTERE PARA "a fazer"
         enviarWhatsAppPedido(pedido);
-
         console.log("Pagamento confirmado - status atualizado e WhatsApp enviado");
       } else {
         console.warn("Pedido não encontrado ou incompleto no webhook:", pedidoId);
