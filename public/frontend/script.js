@@ -295,7 +295,7 @@ function esconderLoader() {
 async function alterarStatusPedido(id, status) {
   const token = localStorage.getItem("adminToken");
   const res = await fetch("https://homepudimback.onrender.com/api/atualizar-status", {
-    method: "POST",
+    method: "PUT", // <-- ALTERE PARA PUT
     headers: {
       "Content-Type": "application/json",
       Authorization: "Bearer " + token
