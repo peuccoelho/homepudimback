@@ -42,9 +42,7 @@
           if (dados.status === "pago") {
             window.location.href = "pagamento-sucesso.html";
           }
-        } catch (e) {
-          // Silencie erro para não assustar o usuário
-        }
+        } catch (e) {}
       }
 
       setInterval(verificarStatus, 5000);

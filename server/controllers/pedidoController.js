@@ -166,7 +166,7 @@ export async function pagamentoWebhook(req, res) {
       const pedido = pedidoDoc.data();
 
       if (pedido && pedido.cliente && pedido.total) {
-        await pedidosCollection.doc(pedidoId).update({ status: "a fazer" }); // <-- ALTERE PARA "a fazer"
+        await pedidosCollection.doc(pedidoId).update({ status: "a fazer" }); 
         enviarWhatsAppPedido(pedido);
         console.log("Pagamento confirmado - status atualizado e WhatsApp enviado");
       } else {
@@ -213,7 +213,7 @@ export async function adminPedidos(req, res) {
 
 export async function atualizarStatusPedido(req, res) {
   const { pedidosCollection } = req.app.locals;
-  console.log("Body recebido para atualizar status:", req.body); // <-- ADICIONE ESTA LINHA
+  console.log("Body recebido para atualizar status:", req.body); 
   const { id, status } = req.body;
   const statusValidos = ["a fazer", "em produção", "pronto", "pendente", "pago"];
 

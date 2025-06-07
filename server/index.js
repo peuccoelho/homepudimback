@@ -9,7 +9,7 @@ import { dirname } from "path";
 import admin from "firebase-admin";
 import helmet from "helmet";
 
-// Importando as rotas
+// rotas
 import pedidoRoutes from "./routes/pedidoRoutes.js";
 import { loginLimiter, pedidoLimiter, globalLimiter } from "./middlewares/rateLimit.js";
 

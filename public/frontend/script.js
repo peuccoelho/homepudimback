@@ -120,7 +120,6 @@ function atualizarCarrinho() {
   const total = carrinho.reduce((sum, item) => sum + item.preco * item.quantidade, 0);
   const totalLi = document.createElement("li");
   totalLi.className = "font-bold border-t border-gray-300 pt-2 mt-2 flex justify-between";
-  // Não há dados do usuário aqui, mas se quiser garantir:
   totalLi.innerHTML = `<span>Total</span><span>R$ ${total.toFixed(2).replace(".", ",")}</span>`;
   carrinhoContainer.appendChild(totalLi);
 
@@ -156,7 +155,7 @@ btnFinalizar.addEventListener("click", async () => {
   const celular = celularClienteInput.value.trim();
   const pagamento = formaPagamentoInput.value;
   const parcelas = parseInt(document.getElementById("parcelas")?.value || "1");
-  const totalUnidades = carrinho.reduce((sum, item) => sum + item.quantidade, 0); // <-- ADICIONE ESTA LINHA
+  const totalUnidades = carrinho.reduce((sum, item) => sum + item.quantidade, 0); 
 
   if (!nome || !email || !celular || !pagamento) {
     exibirToast("Preencha todos os campos antes de finalizar o pedido.");
@@ -295,7 +294,7 @@ function esconderLoader() {
 async function alterarStatusPedido(id, status) {
   const token = localStorage.getItem("adminToken");
   const res = await fetch("https://homepudimback.onrender.com/api/atualizar-status", {
-    method: "PUT", // <-- ALTERE PARA PUT
+    method: "PUT", 
     headers: {
       "Content-Type": "application/json",
       Authorization: "Bearer " + token
