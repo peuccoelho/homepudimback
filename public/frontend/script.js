@@ -309,3 +309,5 @@ async function alterarStatusPedido(id, status) {
     exibirToast("Erro ao atualizar status.");
   }
 }
+
+window.alterarStatusPedido = alterarStatusPedido;

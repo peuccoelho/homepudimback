@@ -9,6 +9,6 @@ router.post("/pagar", pedidoLimiter, criarPedido);
 router.post("/pagamento-webhook", pagamentoWebhook);
 router.get("/status-pedido", pedidoLimiter, statusPedido);
 router.get("/admin-pedidos", pedidoLimiter, autenticar, adminPedidos);
-router.put("/api/atualizar-status", autenticar, atualizarStatusPedido);
+router.put("/atualizar-status", autenticar, atualizarStatusPedido);
 
 export default router;
