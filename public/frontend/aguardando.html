@@ -39,7 +39,7 @@
           );
           const dados = await res.json();
 
-          if (dados.status === "pago") {
+          if (dados.status === "pago" || dados.status === "a fazer") {
             window.location.href = "pagamento-sucesso.html";
           }
         } catch (e) {}
