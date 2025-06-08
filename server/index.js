@@ -11,7 +11,7 @@ import helmet from "helmet";
 
 // rotas
 import pedidoRoutes from "./routes/pedidoRoutes.js";
-import { loginLimiter, pedidoLimiter, globalLimiter } from "./middlewares/rateLimit.js";
+import { loginLimiter, pedidoLimiter, globalLimiter, adminLimiter } from "./middlewares/rateLimit.js";
 
 dotenv.config();
 console.log("Token carregado:", process.env.access_token?.slice(0, 10) + "...");
@@ -82,7 +82,7 @@ app.post("/api/login", loginLimiter, (req, res) => {
 app.use("/api/pagar", pedidoLimiter);
 app.use("/api/pagamento-webhook", pedidoLimiter);
 app.use("/api/status-pedido", pedidoLimiter);
-app.use("/api/admin-pedidos", pedidoLimiter);
+app.use("/api/admin-pedidos", adminLimiter);
 
 app.locals.pedidosCollection = pedidosCollection;
 app.locals.ASAAS_API = ASAAS_API;

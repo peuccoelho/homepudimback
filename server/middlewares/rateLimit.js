@@ -26,3 +26,12 @@ export const pedidoLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+// Limite para rotas de admin - 200 requisições por hora por IP
+export const adminLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 200, // ou mais, conforme necessidade
+  message: { erro: "Muitas requisições do admin. Tente novamente mais tarde." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});

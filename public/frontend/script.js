@@ -46,23 +46,25 @@ function verificarHorarioFuncionamento() {
   return aberto;
 }
 
-cardapio.forEach((item, index) => {
-  const card = document.createElement("div");
-  card.className =
-    "bg-white rounded-2xl p-5 shadow-md hover:shadow-xl cursor-pointer transition-all transform hover:scale-105 border border-[#c9b8a2] duration-300 opacity-0 animate-fade-in";
-  card.innerHTML = `
-    <h3 class="text-lg font-semibold mb-1">${item.nome}</h3>
-    <p class="text-sm text-gray-600 mb-2">Peso: ${item.peso}</p>
-    <p class="mb-4 font-medium">R$ ${item.preco.toFixed(2).replace(".", ",")}</p>
-    <div class="flex gap-2">
-      <input type="number" min="1" value="1" class="quantidadeInput w-16 text-center border rounded" id="quantidade-${index}" />
-      <button class="bg-[#a47551] hover:bg-[#916546] text-white px-4 py-2 rounded-xl transition" onclick="adicionarAoCarrinho(${index})">
-        Adicionar
-      </button>
-    </div>
-  `;
-  cardapioContainer.appendChild(card);
-});
+if (cardapioContainer) {
+  cardapio.forEach((item, index) => {
+    const card = document.createElement("div");
+    card.className =
+      "bg-white rounded-2xl p-5 shadow-md hover:shadow-xl cursor-pointer transition-all transform hover:scale-105 border border-[#c9b8a2] duration-300 opacity-0 animate-fade-in";
+    card.innerHTML = `
+      <h3 class="text-lg font-semibold mb-1">${item.nome}</h3>
+      <p class="text-sm text-gray-600 mb-2">Peso: ${item.peso}</p>
+      <p class="mb-4 font-medium">R$ ${item.preco.toFixed(2).replace(".", ",")}</p>
+      <div class="flex gap-2">
+        <input type="number" min="1" value="1" class="quantidadeInput w-16 text-center border rounded" id="quantidade-${index}" />
+        <button class="bg-[#a47551] hover:bg-[#916546] text-white px-4 py-2 rounded-xl transition" onclick="adicionarAoCarrinho(${index})">
+          Adicionar
+        </button>
+      </div>
+    `;
+    cardapioContainer.appendChild(card);
+  });
+}
 
 function adicionarAoCarrinho(index) {
   const item = cardapio[index];
