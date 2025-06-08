@@ -177,9 +177,13 @@
         );
 
         if (!res.ok) {
-          alert("Token expirado ou inválido.");
-          localStorage.removeItem("adminToken");
-          window.location.href = "/admin-login.html";
+          if (res.status === 401 || res.status === 403) {
+            alert("Token expirado ou inválido.");
+            localStorage.removeItem("adminToken");
+            window.location.href = "/admin-login.html";
+          } else {
+            alert("Erro ao carregar pedidos. Tente novamente mais tarde.");
+          }
           return;
         }
 
