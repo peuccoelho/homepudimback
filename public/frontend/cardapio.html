@@ -38,13 +38,15 @@
     </style>
   </head>
   <body
-    class="p-2 sm:p-4 max-w-6xl mx-auto min-h-screen flex flex-col bg-gradient-to-br from-[#fdf6e3] to-[#f8e7d1]"
+    class="p-2 sm:p-4 max-w-6xl mx-auto min-h-screen flex flex-col bg-gradient-to-br from-[#f8e7d1] to-[#f8e7d1]"
   >
-    <header class="relative mb-4 sm:mb-6">
+    <header
+      class="w-full bg-[#f8e7d1] rounded-b-2xl flex items-center justify-between px-4 sm:px-8 py-3 mb-6 relative z-10"
+    >
       <!-- Botão de Voltar -->
       <a
         href="index.html"
-        class="absolute top-2 left-2 bg-[#a47551] hover:bg-[#916546] text-white px-4 py-2 rounded-lg transition text-sm flex items-center gap-2 shadow"
+        class="flex items-center gap-2 bg-[#a47551] hover:bg-[#916546] text-white px-4 py-2 rounded-lg transition text-sm shadow"
       >
         <svg
           class="w-5 h-5"
@@ -62,24 +64,21 @@
         Voltar
       </a>
 
-      <!-- Status de funcionamento -->
-      <div
-        id="status"
-        class="absolute top-2 right-2 text-white px-4 py-2 rounded-lg text-sm bg-gray-400 shadow"
-      >
-        Verificando status...
-      </div>
-
-      <div class="text-center pt-12">
+      <!-- Logo Centralizada -->
+      <div class="flex-1 flex justify-center">
         <img
           src="papudimlogo.png"
           alt="Logo Papudim"
-          class="w-16 h-16 mx-auto mb-2 rounded-full shadow-lg border-4 border-[#e2cdb0]"
+          class="w-16 h-16 rounded-full shadow-lg border-4 border-[#e2cdb0] bg-white"
         />
-        <h1 class="text-3xl font-bold text-[#a47551]">🍮 Papudim</h1>
-        <p class="text-sm text-gray-600">
-          Pudins artesanais feitos com carinho
-        </p>
+      </div>
+
+      <!-- Status à Direita -->
+      <div
+        id="status"
+        class="bg-gray-400 text-white px-4 py-2 rounded-lg text-sm shadow ml-2"
+      >
+        Verificando status...
       </div>
     </header>
 
