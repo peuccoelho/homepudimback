@@ -160,6 +160,7 @@
           </select>
           <select
             id="parcelas"
+            style="display: none"
             class="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#a47551] transition text-base mt-2"
           >
             <option value="1">1x</option>
@@ -219,3 +220,17 @@
     <script src="script.js"></script>
   </body>
 </html>
+<script>
+  formaPagamentoInput.addEventListener("change", () => {
+    selectParcelas.style.display = "none";
+    function atualizarParcelas() {
+      const formaPagamento = formaPagamentoInput.value;
+      if (formaPagamento === "CREDIT_CARD") {
+        selectParcelas.style.display = "block";
+      } else {
+        selectParcelas.style.display = "none";
+      }
+    }
+    atualizarParcelas();
+  });
+</script>

@@ -44,13 +44,17 @@ function verificarHorarioFuncionamento() {
 
   if (statusDiv) {
     statusDiv.textContent = aberto ? "Aberto agora" : "Fechado no momento";
-    statusDiv.classList.remove("bg-gray-400");
-    statusDiv.classList.toggle("bg-green-600", aberto);
-    statusDiv.classList.toggle("bg-red-600", !aberto);
+    statusDiv.classList.remove("bg-gray-400", "bg-green-600", "bg-red-600");
+    statusDiv.classList.add(aberto ? "bg-green-600" : "bg-red-600");
   }
 
   return aberto;
 }
+
+// Atualiza o status imediatamente ao carregar
+verificarHorarioFuncionamento();
+// Atualiza o status a cada minuto
+setInterval(verificarHorarioFuncionamento, 60000);
 
 if (cardapioContainer) {
   cardapio.forEach((item, index) => {
@@ -284,15 +288,41 @@ function validarFormulario() {
 nomeClienteInput.addEventListener("input", validarFormulario);
 emailClienteInput.addEventListener("input", validarFormulario);
 celularClienteInput.addEventListener("input", validarFormulario);
-formaPagamentoInput.addEventListener("change", validarFormulario);
 formaPagamentoInput.addEventListener("change", () => {
+  validarFormulario();
   if (formaPagamentoInput.value === "CREDIT_CARD") {
     selectParcelas.style.display = "";
   } else {
     selectParcelas.style.display = "none";
+    selectParcelas.value = "1";
   }
 });
-selectParcelas.style.display = "none"; 
+document.addEventListener("DOMContentLoaded", () => {
+  // Garante que o selectParcelas está oculto ao carregar
+  selectParcelas.style.display = "none";
+
+  // Evento para mostrar/ocultar parcelas
+  formaPagamentoInput.addEventListener("change", () => {
+    if (formaPagamentoInput.value === "CREDIT_CARD") {
+      selectParcelas.style.display = "";
+    } else {
+      selectParcelas.style.display = "none";
+      selectParcelas.value = "1";
+    }
+    validarFormulario();
+  });
+});
+selectParcelas.style.display = "none"; // mantém oculto ao carregar
+
+function atualizarParcelas() {
+  if (formaPagamentoInput.value === "CREDIT_CARD") {
+    selectParcelas.style.display = "";
+  } else {
+    selectParcelas.style.display = "none";
+    selectParcelas.value = "1";
+  }
+}
+atualizarParcelas(); // chama ao carregar
 
 function exibirToast(mensagem) {
   const toast = document.createElement("div");
