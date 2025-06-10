@@ -217,20 +217,33 @@
       Ajuda
     </a>
 
+    <!-- Modal Resumo -->
+    <div
+      id="modalResumo"
+      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden"
+    >
+      <div class="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full">
+        <h3 class="text-xl font-bold mb-3 text-[#a47551]">
+          Confirme seu pedido
+        </h3>
+        <div id="resumoConteudo" class="mb-4 text-[#3e2c23]"></div>
+        <div class="flex gap-3 justify-end">
+          <button
+            id="btnCancelarResumo"
+            class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-xl font-semibold transition"
+          >
+            Cancelar
+          </button>
+          <button
+            id="btnConfirmarResumo"
+            class="bg-[#a47551] hover:bg-[#916546] text-white px-4 py-2 rounded-xl font-semibold transition"
+          >
+            Confirmar e Pagar
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script src="script.js"></script>
-    <script>
-      formaPagamentoInput.addEventListener("change", () => {
-        selectParcelas.style.display = "none";
-        function atualizarParcelas() {
-          const formaPagamento = formaPagamentoInput.value;
-          if (formaPagamento === "CREDIT_CARD") {
-            selectParcelas.style.display = "block";
-          } else {
-            selectParcelas.style.display = "none";
-          }
-        }
-        atualizarParcelas();
-      });
-    </script>
   </body>
 </html>
