@@ -20,9 +20,46 @@
           font-size: 1.25rem;
         }
       }
+      /* ...adicione ao seu CSS global... */
+      button,
+      .btn,
+      a,
+      .rounded-xl,
+      .rounded-lg {
+        transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+          color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+          box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+          transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      button:active,
+      .btn:active,
+      a:active {
+        transform: scale(0.97);
+        box-shadow: 0 2px 8px #0001;
+      }
+      button:focus-visible,
+      .btn:focus-visible,
+      a:focus-visible {
+        outline: 2px solid #a47551;
+        outline-offset: 2px;
+      }
+      .page-fade {
+        opacity: 0;
+        animation: pageFadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+      @keyframes pageFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
     </style>
   </head>
-  <body class="min-h-screen px-2 py-4 sm:px-4 sm:py-8 bg-[#fdfaf6]">
+  <body class="min-h-screen px-2 py-4 sm:px-4 sm:py-8 bg-[#fdfaf6] page-fade">
     <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-4 sm:p-8">
       <!-- Header -->
       <div

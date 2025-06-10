@@ -25,6 +25,12 @@ const infoSection = document.getElementById("infoSection");
 const statusDiv = document.getElementById("status");
 const barraProgresso = document.getElementById("barraProgresso");
 const selectParcelas = document.getElementById("parcelas");
+const modalResumo = document.getElementById("modalResumo");
+const resumoConteudo = document.getElementById("resumoConteudo");
+const btnCancelarResumo = document.getElementById("btnCancelarResumo");
+const btnConfirmarResumo = document.getElementById("btnConfirmarResumo");
+
+let pedidoParaEnviar = null;
 
 toggleInfo?.addEventListener("click", () => {
   infoSection.classList.toggle("hidden");
@@ -151,19 +157,20 @@ function escapeHTML(str) {
     .replace(/'/g, "&#39;");
 }
 
-btnFinalizar.addEventListener("click", async () => {
+btnFinalizar.addEventListener("click", (e) => {
+  e.preventDefault();
+
   const nome = nomeClienteInput.value.trim();
   const email = emailClienteInput.value.trim();
   const celular = celularClienteInput.value.trim();
   const pagamento = formaPagamentoInput.value;
   const parcelas = parseInt(document.getElementById("parcelas")?.value || "1");
-  const totalUnidades = carrinho.reduce((sum, item) => sum + item.quantidade, 0); 
+  const totalUnidades = carrinho.reduce((sum, item) => sum + item.quantidade, 0);
 
   if (!nome || !email || !celular || !pagamento) {
     exibirToast("Preencha todos os campos antes de finalizar o pedido.");
     return;
   }
-
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     exibirToast("Digite um e-mail válido.");
     return;
@@ -181,18 +188,46 @@ btnFinalizar.addEventListener("click", async () => {
     carrinho.reduce((sum, item) => sum + item.preco * item.quantidade, 0).toFixed(2)
   );
 
-  const pedido = {
+  pedidoParaEnviar = {
     cliente: nome,
     email,
     celular,
     pagamento,
-    parcelas, 
+    parcelas,
     itens: carrinho,
     total
   };
 
-  const abaPagamento = window.open("preparando-pagamento.html", "_blank");
+  // Monta o resumo
+  let html = `<ul class="mb-2">`;
+  carrinho.forEach(item => {
+    html += `<li>${escapeHTML(item.nome)} (${escapeHTML(item.peso)}) x${item.quantidade} - R$ ${(item.preco * item.quantidade).toFixed(2).replace(".", ",")}</li>`;
+  });
+  html += `</ul>`;
+  html += `<div class="mb-1"><b>Nome:</b> ${escapeHTML(nome)}</div>`;
+  html += `<div class="mb-1"><b>E-mail:</b> ${escapeHTML(email)}</div>`;
+  html += `<div class="mb-1"><b>Celular:</b> ${escapeHTML(celular)}</div>`;
+  html += `<div class="mb-1"><b>Pagamento:</b> ${pagamento === "PIX" ? "PIX" : "Cartão de Crédito"}`;
+  if (pagamento === "CREDIT_CARD" && parcelas > 1) {
+    html += ` (${parcelas}x)`;
+  }
+  html += `</div>`;
+  html += `<div class="mt-2 text-lg font-bold">Total: R$ ${total.toFixed(2).replace(".", ",")}</div>`;
 
+  resumoConteudo.innerHTML = html;
+  modalResumo.classList.remove("hidden");
+});
+
+// Fecha o modal
+btnCancelarResumo.addEventListener("click", () => {
+  modalResumo.classList.add("hidden");
+});
+
+// Confirma e envia o pedido
+btnConfirmarResumo.addEventListener("click", async () => {
+  modalResumo.classList.add("hidden");
+
+  const abaPagamento = window.open("preparando-pagamento.html", "_blank");
   mostrarLoader();
 
   btnFinalizar.disabled = true;
@@ -205,7 +240,7 @@ btnFinalizar.addEventListener("click", async () => {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(pedido)
+      body: JSON.stringify(pedidoParaEnviar)
     });
 
     const data = await resposta.json();
@@ -226,7 +261,7 @@ btnFinalizar.addEventListener("click", async () => {
   } finally {
     btnFinalizar.disabled = false;
     btnFinalizar.innerHTML = textoOriginal;
-    esconderLoader(); 
+    esconderLoader();
   }
 });
 
@@ -263,8 +298,9 @@ function exibirToast(mensagem) {
   const toast = document.createElement("div");
   toast.textContent = mensagem;
   toast.className =
-    "fixed bottom-5 right-5 bg-[#a47551] text-white px-4 py-2 rounded-xl shadow-lg animate-fade-in z-50";
+    "fixed bottom-5 right-5 bg-[#a47551] text-white px-4 py-2 rounded-xl shadow-lg z-50 toast-anim";
   document.body.appendChild(toast);
+  setTimeout(() => toast.classList.add("toast-hide"), 2100);
   setTimeout(() => toast.remove(), 2500);
 }
 
@@ -312,3 +348,4 @@ async function alterarStatusPedido(id, status) {
 }
 
 window.alterarStatusPedido = alterarStatusPedido;
+
