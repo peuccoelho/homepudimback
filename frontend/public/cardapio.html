@@ -218,19 +218,19 @@
     </a>
 
     <script src="script.js"></script>
+    <script>
+      formaPagamentoInput.addEventListener("change", () => {
+        selectParcelas.style.display = "none";
+        function atualizarParcelas() {
+          const formaPagamento = formaPagamentoInput.value;
+          if (formaPagamento === "CREDIT_CARD") {
+            selectParcelas.style.display = "block";
+          } else {
+            selectParcelas.style.display = "none";
+          }
+        }
+        atualizarParcelas();
+      });
+    </script>
   </body>
 </html>
-<script>
-  formaPagamentoInput.addEventListener("change", () => {
-    selectParcelas.style.display = "none";
-    function atualizarParcelas() {
-      const formaPagamento = formaPagamentoInput.value;
-      if (formaPagamento === "CREDIT_CARD") {
-        selectParcelas.style.display = "block";
-      } else {
-        selectParcelas.style.display = "none";
-      }
-    }
-    atualizarParcelas();
-  });
-</script>
