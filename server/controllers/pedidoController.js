@@ -82,7 +82,7 @@ export async function criarPedido(req, res) {
   await pedidosCollection.doc(pedidoId).set(pedido); // salvar o pedido antes de retornar
 
   const valorKLV = (pedido.total / 0.02).toFixed(6); // ou use cotação via CoinGecko
-  const enderecoKlever = process.env.ENDERECO_KLEVER;
+  const enderecoKlever = klv1vhykq0eg883q7z3sx7j790t0sw9l0s63rgn42lpw022gnr684g2q2lgu73;
 
   return res.json({
     url: `https://klever.io/send?amount=${valorKLV}&receiver=${enderecoKlever}&coin=KLV`,
