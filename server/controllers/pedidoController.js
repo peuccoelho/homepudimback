@@ -79,13 +79,13 @@ export async function criarPedido(req, res) {
   const pedidoId = `pedido-${Date.now()}`;
   pedido.id = pedidoId;
   pedido.status = "pendente";
-
   pedido.itens = itensSanitizados;
   pedido.total = totalCalculado;
 
-  if (pedido.pagamento === "CRIPTO") {
-    await pedidosCollection.doc(pedidoId).set(pedido);
+  // Salva o pedido ANTES de criar cobrança (para todos os métodos)
+  await pedidosCollection.doc(pedidoId).set(pedido);
 
+  if (pedido.pagamento === "CRIPTO") {
     try {
       const enderecoKlever = process.env.ENDERECO_KLEVER;
       const payload = gerarPayloadKlever(
@@ -93,8 +93,6 @@ export async function criarPedido(req, res) {
         pedidoId,
         enderecoKlever
       );
-
-      // Retorne o payload para o frontend montar o deeplink
       return res.json({
         kleverPayload: payload,
         pedidoId: pedidoId,
