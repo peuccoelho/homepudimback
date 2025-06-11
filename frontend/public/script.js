@@ -239,6 +239,19 @@ btnConfirmarResumo.addEventListener("click", async () => {
   btnFinalizar.innerHTML = `<svg class="animate-spin h-5 w-5 mr-2 inline" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>Processando...`;
 
   try {
+    if (pedidoParaEnviar.pagamento === "CRIPTO") {
+    const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
+      .then(r => r.json());
+
+    const valorEmKLV = (pedidoParaEnviar.total / cotacao.klever.brl).toFixed(6);
+    const enderecoKLV = "SEU_ENDERECO_KLEVER"; // 🔁 substitua pelo seu endereço da Klever Wallet
+
+    const linkKleverPay = `https://klever.io/send?amount=${valorEmKLV}&receiver=${enderecoKLV}&coin=KLV`;
+    abaPagamento.location.href = linkKleverPay;
+
+    exibirToast("Finalize o pagamento com Klever. Envie o comprovante por WhatsApp.");
+    return;
+  }
     const resposta = await fetch("https://homepudimback.onrender.com/api/pagar", {
       method: "POST",
       headers: {

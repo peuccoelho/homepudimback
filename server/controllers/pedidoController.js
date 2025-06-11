@@ -78,6 +78,19 @@ export async function criarPedido(req, res) {
   pedido.itens = itensSanitizados;
   pedido.total = totalCalculado;
 
+  if (pedido.pagamento === "CRIPTO") {
+  await pedidosCollection.doc(pedidoId).set(pedido); // salvar o pedido antes de retornar
+
+  const valorKLV = (pedido.total / 0.02).toFixed(6); // ou use cotação via CoinGecko
+  const enderecoKlever = process.env.ENDERECO_KLEVER;
+
+  return res.json({
+    url: `https://klever.io/send?amount=${valorKLV}&receiver=${enderecoKlever}&coin=KLV`,
+    pedidoId: pedidoId
+  });
+}
+
+
   const pedidoId = `pedido-${Date.now()}`;
   pedido.id = pedidoId;
   pedido.status = "pendente"; 
