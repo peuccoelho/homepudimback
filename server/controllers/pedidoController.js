@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import { sanitizeInput } from "../utils/sanitize.js";
 import { criarClienteAsaas, criarCobrancaAsaas } from "../services/asaasService.js";
-import { criarCobrancaKlever, gerarPayloadKlever } from "../services/kleverService.js";
+import { gerarPayloadKlever } from "../services/kleverService.js";
 
 const PRECOS_PRODUTOS = {
   "Pudim de Café": 8.6,
