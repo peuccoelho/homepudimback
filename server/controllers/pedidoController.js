@@ -79,16 +79,25 @@ export async function criarPedido(req, res) {
   pedido.total = totalCalculado;
 
   if (pedido.pagamento === "CRIPTO") {
-  await pedidosCollection.doc(pedidoId).set(pedido); // salvar o pedido antes de retornar
+  await pedidosCollection.doc(pedidoId).set(pedido);
 
-  const valorKLV = (pedido.total / 0.02).toFixed(6); // ou use cotação via CoinGecko
-  const enderecoKlever = klv1vhykq0eg883q7z3sx7j790t0sw9l0s63rgn42lpw022gnr684g2q2lgu73;
+  const valorKLV = (pedido.total / 0.02).toFixed(6);
+  const enderecoKlever = process.env.ENDERECO_KLEVER;
+
+  console.log("✅ Pagamento com criptomoeda selecionado.");
+  console.log("📦 Total do pedido:", pedido.total);
+  console.log("💱 Valor em KLV:", valorKLV);
+  console.log("🏦 Endereço Klever carregado:", enderecoKlever);
+
+  const linkFinal = `https://klever.io/send?amount=${valorKLV}&receiver=${enderecoKlever}&coin=KLV`;
+  console.log("🔗 Link Klever gerado:", linkFinal);
 
   return res.json({
-    url: `https://klever.io/send?amount=${valorKLV}&receiver=${enderecoKlever}&coin=KLV`,
+    url: linkFinal,
     pedidoId: pedidoId
   });
 }
+
 
 
   const pedidoId = `pedido-${Date.now()}`;
