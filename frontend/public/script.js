@@ -255,13 +255,15 @@ btnConfirmarResumo.addEventListener("click", async () => {
       abaPagamento.location.href = data.url;
       exibirToast("Finalize o pagamento na nova aba. Você será avisado por WhatsApp após a confirmação.");
     } else if (data.kleverPayload && data.pedidoId) {
-      const { amount, receiver, kda, reference } = data.kleverPayload;
-      // Monta o deeplink para Klever Wallet
-      const kleverUrl = `kleverwallet://send?amount=${amount}&receiver=${receiver}&kda=${kda}&reference=${reference}`;
-      // Redireciona a aba principal para o deeplink
-      window.location.href = kleverUrl;
-      exibirToast("Finalize o pagamento na Klever Wallet. Envie o comprovante por WhatsApp.");
-      // Fecha a aba de "preparando-pagamento"
+      const { amount, receiver, kda } = data.kleverPayload;
+      // Monta o deeplink para Klever Wallet (sem reference)
+      const kleverUrl = `kleverwallet://send?amount=${amount}&receiver=${receiver}&kda=${kda}`;
+      if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        window.location.href = kleverUrl;
+        exibirToast("Finalize o pagamento na Klever Wallet. Envie o comprovante por WhatsApp.");
+      } else {
+        exibirToast("O pagamento por criptomoeda só funciona no celular com Klever Wallet instalada.");
+      }
       abaPagamento.close();
       return;
     } else {
