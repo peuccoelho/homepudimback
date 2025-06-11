@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import { sanitizeInput } from "../utils/sanitize.js";
 import { criarClienteAsaas, criarCobrancaAsaas } from "../services/asaasService.js";
-import { criarCobrancaKlever } from "../services/kleverService.js";
+import { criarCobrancaKlever, gerarPayloadKlever } from "../services/kleverService.js";
 
 const PRECOS_PRODUTOS = {
   "Pudim de Café": 8.6,
@@ -88,21 +88,20 @@ export async function criarPedido(req, res) {
 
     try {
       const enderecoKlever = process.env.ENDERECO_KLEVER;
-      const cobranca = await criarCobrancaKlever(
+      const payload = gerarPayloadKlever(
         pedido.total,
         pedidoId,
-        pedido.cliente,
         enderecoKlever
       );
 
-      // O link de pagamento geralmente vem em cobranca.payment_url ou similar
+      // Retorne o payload para o frontend montar o deeplink
       return res.json({
-        url: cobranca.payment_url || cobranca.url || cobranca.link,
+        kleverPayload: payload,
         pedidoId: pedidoId,
       });
     } catch (error) {
-      console.error("Erro ao criar cobrança Klever:", error);
-      return res.status(500).json({ erro: "Erro ao criar cobrança Klever" });
+      console.error("Erro ao gerar payload Klever:", error);
+      return res.status(500).json({ erro: "Erro ao gerar payload Klever" });
     }
   }
 
