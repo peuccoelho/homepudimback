@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import { sanitizeInput } from "../utils/sanitize.js";
 import { criarClienteAsaas, criarCobrancaAsaas } from "../services/asaasService.js";
+import { criarCobrancaKlever } from "../services/kleverService.js";
 
 const PRECOS_PRODUTOS = {
   "Pudim de Café": 8.6,
@@ -75,36 +76,35 @@ export async function criarPedido(req, res) {
     return res.status(400).json({ erro: "A quantidade mínima para pedidos é de 20 unidades." });
   }
 
+  const pedidoId = `pedido-${Date.now()}`;
+  pedido.id = pedidoId;
+  pedido.status = "pendente";
+
   pedido.itens = itensSanitizados;
   pedido.total = totalCalculado;
 
   if (pedido.pagamento === "CRIPTO") {
-  await pedidosCollection.doc(pedidoId).set(pedido);
+    await pedidosCollection.doc(pedidoId).set(pedido);
 
-  const valorKLV = (pedido.total / 0.02).toFixed(6);
-  const enderecoKlever = process.env.ENDERECO_KLEVER;
+    try {
+      const enderecoKlever = process.env.ENDERECO_KLEVER;
+      const cobranca = await criarCobrancaKlever(
+        pedido.total,
+        pedidoId,
+        pedido.cliente,
+        enderecoKlever
+      );
 
-  console.log("✅ Pagamento com criptomoeda selecionado.");
-  console.log("📦 Total do pedido:", pedido.total);
-  console.log("💱 Valor em KLV:", valorKLV);
-  console.log("🏦 Endereço Klever carregado:", enderecoKlever);
-
-  const linkFinal = `https://klever.io/send?amount=${valorKLV}&receiver=${enderecoKlever}&coin=KLV`;
-  console.log("🔗 Link Klever gerado:", linkFinal);
-
-  return res.json({
-    url: linkFinal,
-    pedidoId: pedidoId
-  });
-}
-
-
-
-  const pedidoId = `pedido-${Date.now()}`;
-  pedido.id = pedidoId;
-  pedido.status = "pendente"; 
-
-  await pedidosCollection.doc(pedidoId).set(pedido);
+      // O link de pagamento geralmente vem em cobranca.payment_url ou similar
+      return res.json({
+        url: cobranca.payment_url || cobranca.url || cobranca.link,
+        pedidoId: pedidoId,
+      });
+    } catch (error) {
+      console.error("Erro ao criar cobrança Klever:", error);
+      return res.status(500).json({ erro: "Erro ao criar cobrança Klever" });
+    }
+  }
 
   const { cliente, email, celular, total, pagamento, parcelas } = pedido;
 
