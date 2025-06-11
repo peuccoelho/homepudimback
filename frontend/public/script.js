@@ -258,8 +258,12 @@ btnConfirmarResumo.addEventListener("click", async () => {
       const { amount, receiver, kda, reference } = data.kleverPayload;
       // Monta o deeplink para Klever Wallet
       const kleverUrl = `kleverwallet://send?amount=${amount}&receiver=${receiver}&kda=${kda}&reference=${reference}`;
-      abaPagamento.location.href = kleverUrl;
+      // Redireciona a aba principal para o deeplink
+      window.location.href = kleverUrl;
       exibirToast("Finalize o pagamento na Klever Wallet. Envie o comprovante por WhatsApp.");
+      // Fecha a aba de "preparando-pagamento"
+      abaPagamento.close();
+      return;
     } else {
       exibirToast("Erro ao redirecionar para pagamento. Tente novamente.");
       abaPagamento.close();
