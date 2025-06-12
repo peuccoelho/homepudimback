@@ -1,5 +1,5 @@
 import pkg from "@klever/sdk";
-const { TransactionBuilder } = pkg;
+const TransactionBuilder = pkg.TransactionBuilder || (pkg.default && pkg.default.TransactionBuilder);
 import fetch from "node-fetch";
 import { sanitizeInput } from "../utils/sanitize.js";
 import { criarClienteAsaas, criarCobrancaAsaas } from "../services/asaasService.js";
@@ -17,6 +17,11 @@ const PRECOS_PRODUTOS = {
   "Chocolate ao Leite c/ Calda de Caramelo": 9.9,
   "Pudim de Abacaxi": 8.9
 };
+
+if (!TransactionBuilder) {
+  console.error("TransactionBuilder não encontrado no @klever/sdk. Estrutura do pacote:", Object.keys(pkg), pkg.default ? Object.keys(pkg.default) : "sem default");
+  throw new Error("TransactionBuilder não encontrado no @klever/sdk");
+}
 
 export async function criarPedido(req, res) {
   console.log("Recebido pedido:", req.body); 
@@ -279,7 +284,7 @@ export async function criarPedidoCripto(req, res) {
 
     // 2. Construir transação
     const builder = new TransactionBuilder({
-      chainId: "10042", // mainnet
+      chainId: "10042",
     });
 
     const tx = builder.transfer({
