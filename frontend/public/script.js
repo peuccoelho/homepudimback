@@ -364,13 +364,15 @@ async function pagarComKleverSDK(pedido) {
       return;
     }
 
+    // Inicializa o Klever SDK (necessário!)
+    await window.kleverWeb.initialize();
+
     const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
       .then(r => r.json());
     const valorKLV = (pedido.total / cotacao.klever.brl).toFixed(6);
     const valorKLVPreciso = Math.floor(valorKLV * 1e6);
     const enderecoLoja = "klv1vhykq0eg883q7z3sx7j790t0sw9l0s63rgn42lpw022gnr684g2q2lgu73";
 
-    // construir transação
     const payload = {
       to: enderecoLoja,
       amount: valorKLVPreciso,
