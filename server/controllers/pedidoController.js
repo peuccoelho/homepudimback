@@ -253,9 +253,17 @@ export async function criarPedidoCripto(req, res) {
   const chavePrivada = process.env.PRIVATE_KEY_KLEVER;
 
   try {
-    // 1. Cotação KLV/BRL
-    const cotacaoResp = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl");
-    const cotacao = await cotacaoResp.json();
+    // 1. Cotação KLV/BRL com retry
+    let cotacao = null;
+    let tentativas = 0;
+    while (tentativas < 3 && (!cotacao || !cotacao.klever || typeof cotacao.klever.brl !== "number" || cotacao.klever.brl <= 0)) {
+      const cotacaoResp = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl");
+      cotacao = await cotacaoResp.json();
+      tentativas++;
+      if (!cotacao || !cotacao.klever || typeof cotacao.klever.brl !== "number" || cotacao.klever.brl <= 0) {
+        await new Promise(r => setTimeout(r, 1000)); // espera 1s antes de tentar de novo
+      }
+    }
 
     if (
       !cotacao ||
@@ -263,7 +271,7 @@ export async function criarPedidoCripto(req, res) {
       typeof cotacao.klever.brl !== "number" ||
       cotacao.klever.brl <= 0
     ) {
-      throw new Error("Cotação do KLV indisponível no momento.");
+      throw new Error("Cotação do KLV indisponível no momento. Tente novamente em instantes.");
     }
 
     const valorKLV = total / cotacao.klever.brl;
