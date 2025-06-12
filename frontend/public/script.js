@@ -229,58 +229,14 @@ btnCancelarResumo.addEventListener("click", () => {
 
 // Confirma e envia o pedido
 btnConfirmarResumo.addEventListener("click", async () => {
-  modalResumo.classList.add("hidden");
-
-  const abaPagamento = window.open("preparando-pagamento.html", "_blank");
-  mostrarLoader();
-
-  btnFinalizar.disabled = true;
-  const textoOriginal = btnFinalizar.innerHTML;
-  btnFinalizar.innerHTML = `<svg class="animate-spin h-5 w-5 mr-2 inline" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>Processando...`;
-
-  try {
-    
-    // Sempre envie para o backend e use o link retornado:
-    const resposta = await fetch("https://homepudimback.onrender.com/api/pagar", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(pedidoParaEnviar)
-    });
-
-    const data = await resposta.json();
-
-    if (data.url && data.pedidoId) {
-      abaPagamento.location.href = data.url;
-      exibirToast("Finalize o pagamento na nova aba. Você será avisado por WhatsApp após a confirmação.");
-    } else if (data.kleverPayload && data.pedidoId) {
-      const { amount, receiver, kda } = data.kleverPayload;
-      // Monta o deeplink para Klever Wallet (sem reference)
-      const kleverUrl = `kleverwallet://send?amount=${amount}&receiver=${receiver}&kda=${kda}`;
-      if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        window.location.href = kleverUrl;
-        exibirToast("Finalize o pagamento na Klever Wallet. Envie o comprovante por WhatsApp.");
-      } else {
-        exibirToast("O pagamento por criptomoeda só funciona no celular com Klever Wallet instalada.");
-      }
-      abaPagamento.close();
-      return;
-    } else {
-      exibirToast("Erro ao redirecionar para pagamento. Tente novamente.");
-      abaPagamento.close();
-      setTimeout(() => window.location.href = "pagamento-erro.html", 1500);
-    }
-  } catch (erro) {
-    console.error("Erro no pagamento:", erro);
-    exibirToast("Falha na conexão com o servidor. Tente novamente em instantes.");
-    abaPagamento.close();
-    setTimeout(() => window.location.href = "pagamento-erro.html", 1500);
-  } finally {
-    btnFinalizar.disabled = false;
-    btnFinalizar.innerHTML = textoOriginal;
+  if (pedidoParaEnviar.pagamento === "CRIPTO") {
+    modalResumo.classList.add("hidden");
+    mostrarLoader();
+    await pagarComKleverSDK(pedidoParaEnviar);
     esconderLoader();
+    return;
   }
+  // ...restante do fluxo...
 });
 
 
@@ -392,4 +348,53 @@ async function alterarStatusPedido(id, status) {
 }
 
 window.alterarStatusPedido = alterarStatusPedido;
+
+async function pagarComKleverSDK(pedido) {
+  const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
+    .then(r => r.json());
+  const valorKLV = (pedido.total / cotacao.klever.brl).toFixed(6);
+  const valorKLVPreciso = Math.floor(valorKLV * 1e6);
+  const enderecoLoja = "klv1vhykq0eg883q7z3sx7j790t0sw9l0s63rgn42lpw022gnr684g2q2lgu73";
+
+  const payload = {
+    to: enderecoLoja,
+    amount: valorKLVPreciso,
+    token: "KLV"
+  };
+
+  const unsignedTx = await window.kleverWeb.buildTransaction([{ payload, type: "Transfer" }]);
+  const signedTx = await window.kleverWeb.signTransaction(unsignedTx);
+  const resultado = await window.kleverWeb.broadcastTransactions([signedTx]);
+  const hash = resultado[0]?.hash;
+
+  if (!hash) {
+    alert("Erro ao enviar transação");
+    return;
+  }
+
+  // envia o pedido + hash para o back-end
+  const res = await fetch("https://homepudimback.onrender.com/api/pagamento-cripto", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...pedido, txHash: hash })
+  });
+
+  if (res.ok) {
+    alert("Transação enviada! Aguardando confirmação na blockchain.");
+  } else {
+    alert("Erro ao registrar pedido com pagamento em cripto.");
+  }
+}
+
+// No seu fluxo de confirmação:
+btnConfirmarResumo.addEventListener("click", async () => {
+  if (pedidoParaEnviar.pagamento === "CRIPTO") {
+    modalResumo.classList.add("hidden");
+    mostrarLoader();
+    await pagarComKleverSDK(pedidoParaEnviar);
+    esconderLoader();
+    return;
+  }
+  // ...restante do fluxo para PIX/cartão...
+});
 

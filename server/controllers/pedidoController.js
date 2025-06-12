@@ -82,25 +82,17 @@ export async function criarPedido(req, res) {
   pedido.itens = itensSanitizados;
   pedido.total = totalCalculado;
 
-  // Salva o pedido ANTES de criar cobrança (para todos os métodos)
-  await pedidosCollection.doc(pedidoId).set(pedido);
+  if (pedido.pagamento === "CRIPTO" && req.body.txHash) {
+    pedido.txHash = req.body.txHash;
+    await pedidosCollection.doc(pedidoId).set(pedido);
 
-  if (pedido.pagamento === "CRIPTO") {
-    try {
-      const enderecoKlever = process.env.ENDERECO_KLEVER;
-      const payload = gerarPayloadKlever(
-        pedido.total,
-        pedidoId,
-        enderecoKlever
-      );
-      return res.json({
-        kleverPayload: payload,
-        pedidoId: pedidoId,
-      });
-    } catch (error) {
-      console.error("Erro ao gerar payload Klever:", error);
-      return res.status(500).json({ erro: "Erro ao gerar payload Klever" });
-    }
+    // Inicia monitoramento do hash
+    monitorarTransacaoKlever(pedidoId, pedido.txHash, pedidosCollection);
+
+    return res.json({
+      mensagem: "Pedido registrado. Aguardando confirmação na blockchain.",
+      pedidoId
+    });
   }
 
   const { cliente, email, celular, total, pagamento, parcelas } = pedido;
@@ -246,4 +238,49 @@ export async function atualizarStatusPedido(req, res) {
   } catch (e) {
     res.status(500).json({ erro: "Erro ao atualizar status" });
   }
+}
+
+export async function criarPedidoCripto(req, res) {
+  const { pedidosCollection } = req.app.locals;
+  const pedido = req.body;
+  const { txHash } = pedido;
+
+  if (!txHash) {
+    return res.status(400).json({ erro: "txHash ausente" });
+  }
+
+  const pedidoId = `pedido-${Date.now()}`;
+  pedido.id = pedidoId;
+  pedido.status = "pendente";
+
+  await pedidosCollection.doc(pedidoId).set(pedido);
+
+  // iniciar monitoramento por polling
+  monitorarTransacaoKlever(txHash, pedidoId, pedidosCollection, pedido);
+
+  res.json({ ok: true, pedidoId });
+}
+
+async function monitorarTransacaoKlever(hash, pedidoId, pedidosCollection, pedidoOriginal) {
+  const maxTentativas = 30;
+  let tentativas = 0;
+
+  const intervalo = setInterval(async () => {
+    try {
+      const res = await fetch(`https://api.mainnet.klever.finance/v1/transaction/${hash}`);
+      const dados = await res.json();
+
+      if (dados.status === "success") {
+        await pedidosCollection.doc(pedidoId).update({ status: "a fazer" });
+        enviarWhatsAppPedido(pedidoOriginal);
+        clearInterval(intervalo);
+      }
+
+      if (++tentativas >= maxTentativas) {
+        clearInterval(intervalo);
+      }
+    } catch (e) {
+      console.error("Erro ao verificar hash:", e);
+    }
+  }, 10000); // a cada 10 segundos
 }
