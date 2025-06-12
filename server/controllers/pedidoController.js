@@ -254,8 +254,17 @@ export async function criarPedidoCripto(req, res) {
 
   try {
     // 1. Cotação KLV/BRL
-    const cotacao = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl")
-      .then(r => r.json());
+    const cotacaoResp = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl");
+    const cotacao = await cotacaoResp.json();
+
+    if (
+      !cotacao ||
+      !cotacao.klever ||
+      typeof cotacao.klever.brl !== "number" ||
+      cotacao.klever.brl <= 0
+    ) {
+      throw new Error("Cotação do KLV indisponível no momento.");
+    }
 
     const valorKLV = total / cotacao.klever.brl;
     const valorInteiro = Math.floor(valorKLV * 1e6); // precisão KLV
