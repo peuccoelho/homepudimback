@@ -1,5 +1,6 @@
 import pkg from "@klever/sdk";
 const TransactionBuilder = pkg.TransactionBuilder || (pkg.default && pkg.default.TransactionBuilder);
+const Transaction = pkg.Transaction;
 import fetch from "node-fetch";
 import { sanitizeInput } from "../utils/sanitize.js";
 import { criarClienteAsaas, criarCobrancaAsaas } from "../services/asaasService.js";
@@ -283,11 +284,8 @@ export async function criarPedidoCripto(req, res) {
     const valorInteiro = Math.floor(valorKLV * 1e6); // precisão KLV
 
     // 2. Construir transação
-    const builder = new TransactionBuilder({
+    const tx = new Transaction({
       chainId: "10042",
-    });
-
-    const tx = builder.transfer({
       sender: enderecoLoja,
       receiver: enderecoDestino,
       amount: valorInteiro.toString(),
