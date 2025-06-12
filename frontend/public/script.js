@@ -373,7 +373,7 @@ async function pagarComKleverSDK(pedido) {
     const valorInteiro = Math.floor(valorKLV * 1e6); // precisão 6 casas decimais
 
     const payload = {
-      to: "klv1vhykq0eg883q7z3sx7j790t0sw9l0s63rgn42lpw022gnr684g2q2lgu73", // seu endereço real
+      to: "klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z", // seu endereço real
       amount: valorInteiro,
       token: "KLV"
     };
