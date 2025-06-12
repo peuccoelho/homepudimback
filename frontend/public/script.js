@@ -358,62 +358,61 @@ async function esperarKleverProvider(timeout = 7000) {
 }
 
 async function pagarComKleverSDK(pedido) {
-  // Aguarda até 7 segundos pelo provider
-  const pronto = await esperarKleverProvider();
-  if (!pronto) {
-    alert(
-      "Klever Wallet não detectada.\n\nNo desktop: instale e ative a extensão Klever.\nNo celular: acesse este site pelo navegador DApp dentro do app Klever Wallet."
-    );
-    return;
-  }
-
-  if (typeof window.kleverWeb.isConnected !== "function") {
-    alert("Klever Wallet não está pronta. Aguarde alguns segundos e tente novamente.");
-    return;
-  }
-
-  if (!await window.kleverWeb.isConnected()) {
-    try {
-      await window.kleverWeb.connect();
-    } catch (e) {
-      alert("Permita a conexão com a Klever Wallet para continuar.");
+  try {
+    if (!window.kleverWeb) {
+      alert("Klever Wallet não detectada.");
       return;
     }
-  }
 
-  const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
-    .then(r => r.json());
-  const valorKLV = (pedido.total / cotacao.klever.brl).toFixed(6);
-  const valorKLVPreciso = Math.floor(valorKLV * 1e6);
-  const enderecoLoja = "klv1vhykq0eg883q7z3sx7j790t0sw9l0s63rgn42lpw022gnr684g2q2lgu73";
+    const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
+      .then(r => r.json());
+    const valorKLV = (pedido.total / cotacao.klever.brl).toFixed(6);
+    const valorKLVPreciso = Math.floor(valorKLV * 1e6);
+    const enderecoLoja = "klv1vhykq0eg883q7z3sx7j790t0sw9l0s63rgn42lpw022gnr684g2q2lgu73";
 
-  const payload = {
-    to: enderecoLoja,
-    amount: valorKLVPreciso,
-    token: "KLV"
-  };
+    // construir transação
+    const payload = {
+      to: enderecoLoja,
+      amount: valorKLVPreciso,
+      token: "KLV"
+    };
 
-  const unsignedTx = await window.kleverWeb.buildTransaction([{ payload, type: "Transfer" }]);
-  const signedTx = await window.kleverWeb.signTransaction(unsignedTx);
-  const resultado = await window.kleverWeb.broadcastTransactions([signedTx]);
-  const hash = resultado[0]?.hash;
+    console.log("🔧 Payload:", payload);
 
-  if (!hash) {
-    alert("Erro ao enviar transação");
-    return;
-  }
+    const unsignedTx = await window.kleverWeb.buildTransaction([
+      { payload, type: "Transfer" }
+    ]);
+    console.log("🧾 Transação construída:", unsignedTx);
 
-  // envia o pedido + hash para o back-end
-  const res = await fetch("/api/pagamento-cripto", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...pedido, txHash: hash })
-  });
+    const signedTx = await window.kleverWeb.signTransaction(unsignedTx);
+    console.log("🔐 Transação assinada:", signedTx);
 
-  if (res.ok) {
-    alert("Transação enviada! Aguardando confirmação na blockchain.");
-  } else {
-    alert("Erro ao registrar pedido com pagamento em cripto.");
+    const broadcast = await window.kleverWeb.broadcastTransactions([signedTx]);
+    console.log("📡 Transação enviada:", broadcast);
+
+    const hash = broadcast[0]?.hash;
+
+    if (!hash) {
+      alert("Erro ao transmitir transação.");
+      return;
+    }
+
+    // envia o pedido + hash para o back-end
+    const res = await fetch("/api/pagamento-cripto", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...pedido, txHash: hash })
+    });
+
+    if (res.ok) {
+      alert("Transação enviada! Aguardando confirmação na blockchain.");
+    } else {
+      alert("Erro ao registrar pedido no servidor.");
+    }
+
+  } catch (erro) {
+    console.error("❌ Erro na integração com Klever:", erro);
+    alert("Erro ao processar pagamento com Klever.");
   }
 }
 
