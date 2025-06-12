@@ -1,4 +1,5 @@
-import { TransactionBuilder } from "@klever/sdk";
+import pkg from "@klever/sdk";
+const { TransactionBuilder } = pkg;
 import fetch from "node-fetch";
 import { sanitizeInput } from "../utils/sanitize.js";
 import { criarClienteAsaas, criarCobrancaAsaas } from "../services/asaasService.js";
