@@ -1,3 +1,4 @@
+import { TransactionBuilder } from "@klever/sdk";
 import fetch from "node-fetch";
 import { sanitizeInput } from "../utils/sanitize.js";
 import { criarClienteAsaas, criarCobrancaAsaas } from "../services/asaasService.js";
@@ -243,44 +244,93 @@ export async function atualizarStatusPedido(req, res) {
 export async function criarPedidoCripto(req, res) {
   const { pedidosCollection } = req.app.locals;
   const pedido = req.body;
-  const { txHash } = pedido;
-
-  if (!txHash) {
-    return res.status(400).json({ erro: "txHash ausente" });
-  }
+  const { cliente, email, celular, pagamento, itens, total, destino } = pedido;
 
   const pedidoId = `pedido-${Date.now()}`;
-  pedido.id = pedidoId;
-  pedido.status = "pendente";
+  const enderecoDestino = destino || process.env.ENDERECO_KLEVER;
+  const enderecoLoja = process.env.ENDERECO_KLEVER;
+  const chavePrivada = process.env.PRIVATE_KEY_KLEVER;
 
-  await pedidosCollection.doc(pedidoId).set(pedido);
+  try {
+    // 1. Cotação KLV/BRL
+    const cotacao = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl")
+      .then(r => r.json());
 
-  // iniciar monitoramento por polling
-  monitorarTransacaoKlever(txHash, pedidoId, pedidosCollection, pedido);
+    const valorKLV = total / cotacao.klever.brl;
+    const valorInteiro = Math.floor(valorKLV * 1e6); // precisão KLV
 
-  res.json({ ok: true, pedidoId });
+    // 2. Construir transação
+    const builder = new TransactionBuilder({
+      chainId: "10042", // mainnet
+    });
+
+    const tx = builder.transfer({
+      sender: enderecoLoja,
+      receiver: enderecoDestino,
+      amount: valorInteiro.toString(),
+      token: "KLV"
+    });
+
+    // 3. Assinar
+    tx.sign({ privateKey: chavePrivada });
+
+    // 4. Enviar para a rede
+    const response = await tx.broadcast();
+
+    if (!response?.txId) {
+      throw new Error("Erro ao transmitir transação");
+    }
+
+    const hash = response.txId;
+
+    // 5. Salvar pedido com hash
+    const pedidoSalvo = {
+      id: pedidoId,
+      cliente,
+      email,
+      celular,
+      pagamento,
+      itens,
+      total,
+      status: "pendente",
+      txHash: hash,
+      destino: enderecoDestino
+    };
+
+    await pedidosCollection.doc(pedidoId).set(pedidoSalvo);
+
+    // 6. Iniciar polling para confirmar
+    monitorarTransacaoKlever(hash, pedidoId, pedidosCollection, pedidoSalvo);
+
+    res.json({ pedidoId, hash });
+  } catch (erro) {
+    console.error("❌ Erro ao criar pedido com cripto:", erro);
+    res.status(500).json({ erro: "Falha ao processar pagamento com Klever" });
+  }
 }
 
 async function monitorarTransacaoKlever(hash, pedidoId, pedidosCollection, pedidoOriginal) {
-  const maxTentativas = 30;
   let tentativas = 0;
+  const max = 30;
 
   const intervalo = setInterval(async () => {
     try {
       const res = await fetch(`https://api.mainnet.klever.finance/v1/transaction/${hash}`);
-      const dados = await res.json();
+      const tx = await res.json();
 
-      if (dados.status === "success") {
+      if (tx.status === "success") {
+        console.log("✅ Transação confirmada:", hash);
         await pedidosCollection.doc(pedidoId).update({ status: "a fazer" });
         enviarWhatsAppPedido(pedidoOriginal);
         clearInterval(intervalo);
       }
-
-      if (++tentativas >= maxTentativas) {
-        clearInterval(intervalo);
-      }
     } catch (e) {
-      console.error("Erro ao verificar hash:", e);
+      console.warn("Erro monitorando hash:", hash, e.message);
     }
-  }, 10000); // a cada 10 segundos
+
+    if (++tentativas >= max) {
+      clearInterval(intervalo);
+      console.warn("⏱️ Timeout ao monitorar hash:", hash);
+    }
+  }, 10000);
 }

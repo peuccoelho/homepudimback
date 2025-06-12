@@ -230,13 +230,36 @@ btnCancelarResumo.addEventListener("click", () => {
 // Confirma e envia o pedido
 btnConfirmarResumo.addEventListener("click", async () => {
   if (pedidoParaEnviar.pagamento === "CRIPTO") {
-    modalResumo.classList.add("hidden");
-    mostrarLoader();
-    await pagarComKleverSDK(pedidoParaEnviar);
-    esconderLoader();
-    return;
+    try {
+      modalResumo.classList.add("hidden");
+      mostrarLoader();
+
+      const resposta = await fetch("https://homepudimback.onrender.com/api/pagamento-cripto", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(pedidoParaEnviar)
+      });
+
+      const resultado = await resposta.json();
+
+      if (resposta.ok) {
+        alert("Transação enviada! Aguardando confirmação na blockchain.");
+        window.location.href = "aguardando.html?id=" + resultado.pedidoId;
+      } else {
+        alert("Erro ao processar pagamento em cripto: " + (resultado.erro || "Erro desconhecido"));
+      }
+
+    } catch (e) {
+      console.error("❌ Erro no envio do pedido:", e);
+      alert("Erro ao processar pagamento com cripto.");
+    } finally {
+      esconderLoader();
+      return;
+    }
   }
-  // ...restante do fluxo...
+  // ...restante do fluxo para outros pagamentos...
 });
 
 
@@ -419,11 +442,34 @@ async function pagarComKleverSDK(pedido) {
 // Exemplo de uso no evento do botão de confirmação:
 btnConfirmarResumo.addEventListener("click", async () => {
   if (pedidoParaEnviar.pagamento === "CRIPTO") {
-    modalResumo.classList.add("hidden");
-    mostrarLoader();
-    await pagarComKleverSDK(pedidoParaEnviar);
-    esconderLoader();
-    return;
+    try {
+      modalResumo.classList.add("hidden");
+      mostrarLoader();
+
+      const resposta = await fetch("https://homepudimback.onrender.com/api/pagamento-cripto", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(pedidoParaEnviar)
+      });
+
+      const resultado = await resposta.json();
+
+      if (resposta.ok) {
+        alert("Transação enviada! Aguardando confirmação na blockchain.");
+        window.location.href = "aguardando.html?id=" + resultado.pedidoId;
+      } else {
+        alert("Erro ao processar pagamento em cripto: " + (resultado.erro || "Erro desconhecido"));
+      }
+
+    } catch (e) {
+      console.error("❌ Erro no envio do pedido:", e);
+      alert("Erro ao processar pagamento com cripto.");
+    } finally {
+      esconderLoader();
+      return;
+    }
   }
   // ...restante do fluxo para outros pagamentos...
 });
