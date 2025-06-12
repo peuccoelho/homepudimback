@@ -350,11 +350,31 @@ async function alterarStatusPedido(id, status) {
 window.alterarStatusPedido = alterarStatusPedido;
 
 async function pagarComKleverSDK(pedido) {
+  // Aguarda o provider Klever estar disponível
+  if (!window.kleverWeb) {
+    alert("Klever Wallet não detectada. Instale a extensão ou use o app Klever.");
+    return;
+  }
+
+  if (typeof window.kleverWeb.isConnected !== "function") {
+    alert("Klever Wallet não está pronta. Tente novamente em instantes.");
+    return;
+  }
+
+  if (!await window.kleverWeb.isConnected()) {
+    try {
+      await window.kleverWeb.connect();
+    } catch (e) {
+      alert("Permita a conexão com a Klever Wallet para continuar.");
+      return;
+    }
+  }
+
   const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
     .then(r => r.json());
   const valorKLV = (pedido.total / cotacao.klever.brl).toFixed(6);
   const valorKLVPreciso = Math.floor(valorKLV * 1e6);
-  const enderecoLoja = "klv1vhykq0eg883q7z3sx7j790t0sw9l0s63rgn42lpw022gnr684g2q2lgu73";
+  const enderecoLoja = "SEU_ENDERECO_KLEVER"; // Substitua pelo seu endereço
 
   const payload = {
     to: enderecoLoja,
@@ -373,7 +393,7 @@ async function pagarComKleverSDK(pedido) {
   }
 
   // envia o pedido + hash para o back-end
-  const res = await fetch("https://homepudimback.onrender.com/api/pagamento-cripto", {
+  const res = await fetch("/api/pagamento-cripto", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ...pedido, txHash: hash })
@@ -386,7 +406,7 @@ async function pagarComKleverSDK(pedido) {
   }
 }
 
-// No seu fluxo de confirmação:
+// Exemplo de uso no evento do botão de confirmação:
 btnConfirmarResumo.addEventListener("click", async () => {
   if (pedidoParaEnviar.pagamento === "CRIPTO") {
     modalResumo.classList.add("hidden");
@@ -395,6 +415,6 @@ btnConfirmarResumo.addEventListener("click", async () => {
     esconderLoader();
     return;
   }
-  // ...restante do fluxo para PIX/cartão...
+  // ...restante do fluxo para outros pagamentos...
 });
 
