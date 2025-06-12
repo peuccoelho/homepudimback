@@ -366,39 +366,45 @@ async function pagarComKleverSDK(pedido) {
 
     await window.kleverWeb.initialize();
 
-    const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
-      .then(r => r.json());
-    const valorKLV = (pedido.total / cotacao.klever.brl).toFixed(6);
-    const valorKLVPreciso = Math.floor(valorKLV * 1e6);
-    const enderecoLoja = "klv1vhykq0eg883q7z3sx7j790t0sw9l0s63rgn42lpw022gnr684g2q2lgu73";
-
-    const payload = {
-      to: enderecoLoja,
-      amount: valorKLVPreciso,
-      token: "KLV"
-    };
-
-    console.log("🔧 Payload:", payload);
-
-    const unsignedTx = await window.kleverWeb.buildTransaction([
-      { payload, type: 2 } // ✅ type numérico
-    ]);
-    console.log("🧾 Transação construída:", unsignedTx);
-
-    const signedTx = await window.kleverWeb.signTransaction(unsignedTx);
-    console.log("🔐 Transação assinada:", signedTx);
-
-    const broadcast = await window.kleverWeb.broadcastTransactions([signedTx]);
-    console.log("📡 Transação enviada:", broadcast);
-
-    const hash = broadcast[0]?.hash;
-
-    if (!hash) {
-      alert("Erro ao transmitir transação.");
+    const conta = await window.kleverWeb.getAddress();
+    console.log("🪪 Carteira conectada:", conta);
+    if (!conta?.address) {
+      alert("Erro: nenhuma carteira ativa na Klever Wallet.");
       return;
     }
 
-    // envia o pedido + hash para o back-end
+    const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
+      .then(r => r.json());
+
+    const valorKLV = pedido.total / cotacao.klever.brl;
+    const valorInteiro = Math.floor(valorKLV * 1e6); // valor inteiro, 6 casas decimais
+
+    const payload = {
+      to: "klv1vhykq0eg883q7z3sx7j790t0sw9l0s63rgn42lpw022gnr684g2q2lgu73", // seu endereço real
+      amount: valorInteiro,
+      token: "KLV"
+    };
+
+    console.log("🔧 Payload final:", payload, "typeof amount:", typeof payload.amount);
+
+    const unsignedTx = await window.kleverWeb.buildTransaction([
+      { payload, type: 2 } // 2 = Transferência
+    ]);
+    console.log("📦 Transação construída:", unsignedTx);
+
+    const signedTx = await window.kleverWeb.signTransaction(unsignedTx);
+    console.log("✍ Transação assinada:", signedTx);
+
+    const resultado = await window.kleverWeb.broadcastTransactions([signedTx]);
+    console.log("📡 Resultado:", resultado);
+
+    const hash = resultado[0]?.hash;
+
+    if (!hash) {
+      alert("Erro ao transmitir a transação.");
+      return;
+    }
+
     const res = await fetch("/api/pagamento-cripto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
