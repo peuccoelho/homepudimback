@@ -364,7 +364,6 @@ async function pagarComKleverSDK(pedido) {
       return;
     }
 
-    // Inicializa o Klever SDK (necessário!)
     await window.kleverWeb.initialize();
 
     const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
@@ -382,7 +381,7 @@ async function pagarComKleverSDK(pedido) {
     console.log("🔧 Payload:", payload);
 
     const unsignedTx = await window.kleverWeb.buildTransaction([
-      { payload, type: "Transfer" }
+      { payload, type: 2 } // ✅ type numérico
     ]);
     console.log("🧾 Transação construída:", unsignedTx);
 
