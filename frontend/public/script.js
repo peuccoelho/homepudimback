@@ -349,15 +349,26 @@ async function alterarStatusPedido(id, status) {
 
 window.alterarStatusPedido = alterarStatusPedido;
 
+async function esperarKleverProvider(timeout = 7000) {
+  const start = Date.now();
+  while (!window.kleverWeb && Date.now() - start < timeout) {
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return !!window.kleverWeb;
+}
+
 async function pagarComKleverSDK(pedido) {
-  // Aguarda o provider Klever estar disponível
-  if (!window.kleverWeb) {
-    alert("Klever Wallet não detectada. Instale a extensão ou use o app Klever.");
+  // Aguarda até 7 segundos pelo provider
+  const pronto = await esperarKleverProvider();
+  if (!pronto) {
+    alert(
+      "Klever Wallet não detectada.\n\nNo desktop: instale e ative a extensão Klever.\nNo celular: acesse este site pelo navegador DApp dentro do app Klever Wallet."
+    );
     return;
   }
 
   if (typeof window.kleverWeb.isConnected !== "function") {
-    alert("Klever Wallet não está pronta. Tente novamente em instantes.");
+    alert("Klever Wallet não está pronta. Aguarde alguns segundos e tente novamente.");
     return;
   }
 
@@ -374,7 +385,7 @@ async function pagarComKleverSDK(pedido) {
     .then(r => r.json());
   const valorKLV = (pedido.total / cotacao.klever.brl).toFixed(6);
   const valorKLVPreciso = Math.floor(valorKLV * 1e6);
-  const enderecoLoja = "SEU_ENDERECO_KLEVER"; // Substitua pelo seu endereço
+  const enderecoLoja = "klv1vhykq0eg883q7z3sx7j790t0sw9l0s63rgn42lpw022gnr684g2q2lgu73";
 
   const payload = {
     to: enderecoLoja,
