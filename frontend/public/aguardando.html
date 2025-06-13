@@ -69,6 +69,14 @@
         document.body.innerHTML = "Erro: ID do pedido não informado.";
       }
 
+      // Mostra a hash da transação, se houver
+      const hash = localStorage.getItem("hashTransacao_" + pedidoId);
+      if (hash) {
+        document.getElementById(
+          "hashTransacao"
+        ).innerHTML = `<b>Hash da transação:</b> <span>${hash}</span>`;
+      }
+
       async function verificarStatus() {
         try {
           const res = await fetch(
@@ -130,6 +138,10 @@
         automaticamente.<br />
         Caso demore, não feche esta página.
       </p>
+      <div
+        id="hashTransacao"
+        class="text-xs text-gray-500 mt-4 break-all"
+      ></div>
     </div>
     <footer class="mt-10 text-sm text-gray-500 text-center">
       &copy; 2025 Papudim. Todos os direitos reservados.

@@ -4,6 +4,7 @@ import fetch from "node-fetch";
 import { sanitizeInput } from "../utils/sanitize.js";
 import { criarClienteAsaas, criarCobrancaAsaas } from "../services/asaasService.js";
 import { gerarPayloadKlever } from "../services/kleverService.js";
+import { Account, TransactionType } from "@klever/sdk-node";
 
 const PRECOS_PRODUTOS = {
   "Pudim de Café": 8.6,
@@ -78,7 +79,7 @@ export async function criarPedido(req, res) {
     return res.status(400).json({ erro: "A quantidade mínima para pedidos é de 20 unidades." });
   }
 
-  const pedidoId = `pedido-${Date.now()}`;
+  const pedidoId = pedido.id || `pedido-${Date.now()}`;
   pedido.id = pedidoId;
   pedido.status = "pendente";
   pedido.itens = itensSanitizados;
@@ -249,7 +250,6 @@ export async function criarPedidoCripto(req, res) {
 
   const pedidoId = `pedido-${Date.now()}`;
   const enderecoDestino = destino || process.env.ENDERECO_KLEVER;
-  const enderecoLoja = process.env.ENDERECO_KLEVER;
   const chavePrivada = process.env.PRIVATE_KEY_KLEVER;
 
   try {
@@ -289,26 +289,27 @@ export async function criarPedidoCripto(req, res) {
     const valorKLV = total / cotacao.klever.brl;
     const valorInteiro = Math.floor(valorKLV * 1e6); // precisão KLV
 
-    // 2. Construir transação
-    const tx = new Transaction({
-      chainId: "10042",
-      sender: enderecoLoja,
-      receiver: enderecoDestino,
+    // 2. Enviar transação usando o SDK novo
+    const account = new Account(chavePrivada);
+    await account.ready;
+
+    const payload = {
       amount: valorInteiro.toString(),
-      token: "KLV"
-    });
+      receiver: enderecoDestino,
+      kda: "KLV"
+    };
 
-    // 3. Assinar
-    tx.sign({ privateKey: chavePrivada });
+    const result = await account.quickSend([
+      {
+        payload,
+        type: TransactionType.Transfer
+      }
+    ]);
 
-    // 4. Enviar para a rede
-    const response = await tx.broadcast();
-
-    if (!response?.txId) {
+    const hash = result?.data?.txsHashes?.[0];
+    if (!hash) {
       throw new Error("Erro ao transmitir transação");
     }
-
-    const hash = response.txId;
 
     // 5. Salvar pedido com hash
     const pedidoSalvo = {
