@@ -94,16 +94,22 @@ function adicionarAoCarrinho(index) {
   atualizarCarrinho();
 }
 
+window.adicionarAoCarrinho = adicionarAoCarrinho;
+
 function removerDoCarrinho(i) {
   carrinho.splice(i, 1);
   atualizarCarrinho();
 }
+
+window.removerDoCarrinho = removerDoCarrinho;
 
 function atualizarQuantidade(index, novaQuantidade) {
   const quantidade = parseInt(novaQuantidade);
   carrinho[index].quantidade = !isNaN(quantidade) && quantidade > 0 ? quantidade : 1;
   atualizarCarrinho();
 }
+
+window.atualizarQuantidade = atualizarQuantidade;
 
 function atualizarCarrinho() {
   carrinhoContainer.innerHTML = "";
