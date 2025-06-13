@@ -1,3 +1,5 @@
+import { web, TransactionType } from 'https://sdk.kleverscan.org/kleverchain-sdk-web-esm-1-0-x.js';
+
 const cardapio = [
   { nome: "Pudim de Café", preco: 8.6, peso: "120g" },
   { nome: "Pudim de Doce de Leite", preco: 8.9, peso: "120g" },
@@ -275,63 +277,58 @@ btnConfirmarResumo.addEventListener("click", async () => {
       modalResumo.classList.add("hidden");
       mostrarLoader();
 
-      // Detecta se o Klever Wallet Web está disponível
-      if (window.kleverWeb) {
-        // Inicializa o provedor (mainnet)
-        window.kleverWeb.setProvider({
-          api: 'https://api.mainnet.klever.finance',
-          node: 'https://node.mainnet.klever.finance'
-        });
-        await window.kleverWeb.initialize();
+      // Inicializa o provedor (mainnet)
+      web.setProvider({
+        api: 'https://api.mainnet.klever.finance',
+        node: 'https://node.mainnet.klever.finance'
+      });
+      await web.initialize();
 
-        // Busca cotação
-        const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
-          .then(r => r.json());
+      // Busca cotação
+      const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
+        .then(r => r.json());
 
-        const valorKLV = pedidoParaEnviar.total / cotacao.klever.brl;
-        const valorInteiro = Math.floor(valorKLV * 1e6);
+      const valorKLV = pedidoParaEnviar.total / cotacao.klever.brl;
+      const valorInteiro = Math.floor(valorKLV * 1e6);
 
-        const payload = {
-          amount: valorInteiro,
-          receiver: "klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z",
-          kda: "KLV"
-        };
+      const payload = {
+        amount: valorInteiro,
+        receiver: "klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z",
+        kda: "KLV"
+      };
 
-        // Monta, assina e envia a transação
-        const unsignedTx = await window.kleverWeb.buildTransaction([
-          { payload, type: window.kleverWeb.TransactionType.Transfer }
-        ]);
-        const signedTx = await window.kleverWeb.signTransaction(unsignedTx);
-        const resultado = await window.kleverWeb.broadcastTransactions([signedTx]);
-        const hash = resultado[0]?.hash;
+      // Monta, assina e envia a transação
+      const unsignedTx = await web.buildTransaction([
+        { payload, type: TransactionType.Transfer }
+      ]);
+      const signedTx = await web.signTransaction(unsignedTx);
+      const resultado = await web.broadcastTransactions([signedTx]);
+      const hash = resultado[0]?.hash;
 
-        if (!hash) {
-          alert("Erro ao transmitir a transação.");
-          esconderLoader();
-          return;
-        }
-
-        // Envia o pedido para o backend com o hash
-        const res = await fetch("https://homepudimback.onrender.com/api/pagamento-cripto", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...pedidoParaEnviar, txHash: hash })
-        });
-
-        if (res.ok) {
-          alert("Transação enviada! Aguardando confirmação na blockchain.");
-          if (!pedidoParaEnviar.id) {
-            pedidoParaEnviar.id = "pedido-" + Date.now();
-          }
-          const pedidoId = pedidoParaEnviar.id;
-          localStorage.setItem("hashTransacao_" + pedidoId, hash);
-          window.location.href = "aguardando.html?id=" + pedidoId;
-        } else {
-          alert("Erro ao registrar pedido no servidor.");
-        }
-      } else {
-        alert("Klever Wallet Web não detectada. Instale a extensão ou use o app Klever.");
+      if (!hash) {
+        alert("Erro ao transmitir a transação.");
+        esconderLoader();
         return;
+      }
+
+      // Envia o pedido para o backend com o hash
+      if (!pedidoParaEnviar.id) {
+        pedidoParaEnviar.id = "pedido-" + Date.now();
+      }
+      const pedidoId = pedidoParaEnviar.id;
+      localStorage.setItem("hashTransacao_" + pedidoId, hash);
+
+      const res = await fetch("https://homepudimback.onrender.com/api/pagamento-cripto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...pedidoParaEnviar, txHash: hash })
+      });
+
+      if (res.ok) {
+        alert("Transação enviada! Aguardando confirmação na blockchain.");
+        window.location.href = "aguardando.html?id=" + pedidoId;
+      } else {
+        alert("Erro ao registrar pedido no servidor.");
       }
     } catch (e) {
       console.error("❌ Erro no envio do pedido:", e);
@@ -528,63 +525,58 @@ btnConfirmarResumo.addEventListener("click", async () => {
       modalResumo.classList.add("hidden");
       mostrarLoader();
 
-      // Detecta se o Klever Wallet Web está disponível
-      if (window.kleverWeb) {
-        // Inicializa o provedor (mainnet)
-        window.kleverWeb.setProvider({
-          api: 'https://api.mainnet.klever.finance',
-          node: 'https://node.mainnet.klever.finance'
-        });
-        await window.kleverWeb.initialize();
+      // Inicializa o provedor (mainnet)
+      web.setProvider({
+        api: 'https://api.mainnet.klever.finance',
+        node: 'https://node.mainnet.klever.finance'
+      });
+      await web.initialize();
 
-        // Busca cotação
-        const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
-          .then(r => r.json());
+      // Busca cotação
+      const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
+        .then(r => r.json());
 
-        const valorKLV = pedidoParaEnviar.total / cotacao.klever.brl;
-        const valorInteiro = Math.floor(valorKLV * 1e6);
+      const valorKLV = pedidoParaEnviar.total / cotacao.klever.brl;
+      const valorInteiro = Math.floor(valorKLV * 1e6);
 
-        const payload = {
-          amount: valorInteiro,
-          receiver: "klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z", // seu endereço
-          kda: "KLV"
-        };
+      const payload = {
+        amount: valorInteiro,
+        receiver: "klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z", // seu endereço
+        kda: "KLV"
+      };
 
-        // Monta, assina e envia a transação
-        const unsignedTx = await window.kleverWeb.buildTransaction([
-          { payload, type: window.kleverWeb.TransactionType.Transfer }
-        ]);
-        const signedTx = await window.kleverWeb.signTransaction(unsignedTx);
-        const resultado = await window.kleverWeb.broadcastTransactions([signedTx]);
-        const hash = resultado[0]?.hash;
+      // Monta, assina e envia a transação
+      const unsignedTx = await web.buildTransaction([
+        { payload, type: TransactionType.Transfer }
+      ]);
+      const signedTx = await web.signTransaction(unsignedTx);
+      const resultado = await web.broadcastTransactions([signedTx]);
+      const hash = resultado[0]?.hash;
 
-        if (!hash) {
-          alert("Erro ao transmitir a transação.");
-          esconderLoader();
-          return;
-        }
-
-        // Envia o pedido para o backend com o hash
-        const res = await fetch("https://homepudimback.onrender.com/api/pagamento-cripto", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...pedidoParaEnviar, txHash: hash })
-        });
-
-        if (res.ok) {
-          alert("Transação enviada! Aguardando confirmação na blockchain.");
-          if (!pedidoParaEnviar.id) {
-            pedidoParaEnviar.id = "pedido-" + Date.now();
-          }
-          const pedidoId = pedidoParaEnviar.id;
-          localStorage.setItem("hashTransacao_" + pedidoId, hash);
-          window.location.href = "aguardando.html?id=" + pedidoId;
-        } else {
-          alert("Erro ao registrar pedido no servidor.");
-        }
-      } else {
-        alert("Klever Wallet Web não detectada. Instale a extensão ou use o app Klever.");
+      if (!hash) {
+        alert("Erro ao transmitir a transação.");
+        esconderLoader();
         return;
+      }
+
+      // Envia o pedido para o backend com o hash
+      if (!pedidoParaEnviar.id) {
+        pedidoParaEnviar.id = "pedido-" + Date.now();
+      }
+      const pedidoId = pedidoParaEnviar.id;
+      localStorage.setItem("hashTransacao_" + pedidoId, hash);
+
+      const res = await fetch("https://homepudimback.onrender.com/api/pagamento-cripto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...pedidoParaEnviar, txHash: hash })
+      });
+
+      if (res.ok) {
+        alert("Transação enviada! Aguardando confirmação na blockchain.");
+        window.location.href = "aguardando.html?id=" + pedidoId;
+      } else {
+        alert("Erro ao registrar pedido no servidor.");
       }
     } catch (e) {
       console.error("❌ Erro no envio do pedido:", e);
