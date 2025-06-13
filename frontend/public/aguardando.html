@@ -61,38 +61,6 @@
         }
       }
     </style>
-    <script>
-      const urlParams = new URLSearchParams(window.location.search);
-      const pedidoId = urlParams.get("id");
-
-      if (!pedidoId) {
-        document.body.innerHTML = "Erro: ID do pedido não informado.";
-      }
-
-      // Mostra a hash da transação, se houver
-      const hash = localStorage.getItem("hashTransacao_" + pedidoId);
-      if (hash) {
-        document.getElementById(
-          "hashTransacao"
-        ).innerHTML = `<b>Hash da transação:</b> <span>${hash}</span>`;
-      }
-
-      async function verificarStatus() {
-        try {
-          const res = await fetch(
-            `https://homepudimback.onrender.com/api/status-pedido?id=${pedidoId}`
-          );
-          const dados = await res.json();
-
-          if (dados.status === "pago" || dados.status === "a fazer") {
-            window.location.href = "pagamento-sucesso.html";
-          }
-        } catch (e) {}
-      }
-
-      setInterval(verificarStatus, 5000);
-      verificarStatus();
-    </script>
   </head>
   <body
     class="min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-br from-[#fdf6e3] to-[#f8e7d1] page-fade"
@@ -146,5 +114,40 @@
     <footer class="mt-10 text-sm text-gray-500 text-center">
       &copy; 2025 Papudim. Todos os direitos reservados.
     </footer>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedidoId = urlParams.get("id");
+
+        if (!pedidoId) {
+          document.body.innerHTML = "Erro: ID do pedido não informado.";
+          return;
+        }
+
+        // Mostra a hash da transação, se houver
+        const hash = localStorage.getItem("hashTransacao_" + pedidoId);
+        if (hash) {
+          document.getElementById(
+            "hashTransacao"
+          ).innerHTML = `<b>Hash da transação:</b> <span>${hash}</span>`;
+        }
+
+        async function verificarStatus() {
+          try {
+            const res = await fetch(
+              `https://homepudimback.onrender.com/api/status-pedido?id=${pedidoId}`
+            );
+            const dados = await res.json();
+
+            if (dados.status === "pago" || dados.status === "a fazer") {
+              window.location.href = "pagamento-sucesso.html";
+            }
+          } catch (e) {}
+        }
+
+        setInterval(verificarStatus, 5000);
+        verificarStatus();
+      });
+    </script>
   </body>
 </html>
