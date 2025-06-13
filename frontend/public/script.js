@@ -214,27 +214,12 @@ btnFinalizar.addEventListener("click", async (e) => {
   // Gera um id único para o pedido ANTES de enviar para o backend
   if (!pedidoParaEnviar || !pedidoParaEnviar.id) {
     pedidoParaEnviar = {
-      id: "pedido-" + Date.now(),
-      cliente: nome,
-      email,
-      celular,
-      pagamento,
-      parcelas,
-      itens: carrinho,
-      total
-    };
-  } else {
-    pedidoParaEnviar = {
       ...pedidoParaEnviar,
-      cliente: nome,
-      email,
-      celular,
-      pagamento,
-      parcelas,
-      itens: carrinho,
-      total
+      id: "pedido-" + Date.now()
+      // ...outros campos obrigatórios...
     };
   }
+  const pedidoId = pedidoParaEnviar.id;
 
   // Monta o resumo
   let html = `<ul class="mb-2">`;
@@ -283,14 +268,14 @@ btnConfirmarResumo.addEventListener("click", async () => {
       modalResumo.classList.add("hidden");
       mostrarLoader();
 
-      // Inicializa o provedor (mainnet)
+      // Configura o provedor Klever (mainnet)
       web.setProvider({
         api: 'https://api.mainnet.klever.finance',
         node: 'https://node.mainnet.klever.finance'
       });
       await web.initialize();
 
-      // Busca cotação
+      // Cotação do KLV
       const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
         .then(r => r.json());
 
@@ -299,11 +284,11 @@ btnConfirmarResumo.addEventListener("click", async () => {
 
       const payload = {
         amount: valorInteiro,
-        receiver: "klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z",
+        receiver: "klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z", // endereço da loja
         kda: "KLV"
       };
 
-      // Monta, assina e envia a transação
+      // Monta, assina e transmite
       const unsignedTx = await web.buildTransaction([
         { payload, type: TransactionType.Transfer }
       ]);
@@ -317,7 +302,7 @@ btnConfirmarResumo.addEventListener("click", async () => {
         return;
       }
 
-      // Envia o pedido para o backend com o hash
+      // Envia o pedido + hash para o backend
       if (!pedidoParaEnviar.id) {
         pedidoParaEnviar.id = "pedido-" + Date.now();
       }
@@ -332,21 +317,19 @@ btnConfirmarResumo.addEventListener("click", async () => {
 
       if (res.ok) {
         alert("Transação enviada! Aguardando confirmação na blockchain.");
-        window.location.href = "aguardando.html?id=" + pedidoId;
+        window.location.href = "aguardando.html?id=" + pedidoParaEnviar.id;
       } else {
         alert("Erro ao registrar pedido no servidor.");
       }
+
     } catch (e) {
       console.error("❌ Erro no envio do pedido:", e);
       alert("Erro ao processar pagamento com cripto.");
     } finally {
       esconderLoader();
-      return;
     }
   }
-  // ...restante do fluxo para outros pagamentos...
 });
-
 
 function validarFormulario() {
   const nome = nomeClienteInput.value.trim();
@@ -489,7 +472,9 @@ async function pagarComKleverSDK(pedido) {
     console.log("🔧 Payload final:", payload, "typeof amount:", typeof payload.amount);
 
     const unsignedTx = await window.kleverWeb.buildTransaction([
-      { payload, type: 2 } // 2 = Transferência
+      { payload, 
+        type: TransactionType.Transfer, 
+      } 
     ]);
     console.log("📦 Transação construída:", unsignedTx);
 
@@ -524,21 +509,20 @@ async function pagarComKleverSDK(pedido) {
   }
 }
 
-// Exemplo de uso no evento do botão de confirmação:
 btnConfirmarResumo.addEventListener("click", async () => {
   if (pedidoParaEnviar.pagamento === "CRIPTO") {
     try {
       modalResumo.classList.add("hidden");
       mostrarLoader();
 
-      // Inicializa o provedor (mainnet)
+      // Configura o provedor Klever (mainnet)
       web.setProvider({
         api: 'https://api.mainnet.klever.finance',
         node: 'https://node.mainnet.klever.finance'
       });
       await web.initialize();
 
-      // Busca cotação
+      // Cotação do KLV
       const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
         .then(r => r.json());
 
@@ -547,11 +531,11 @@ btnConfirmarResumo.addEventListener("click", async () => {
 
       const payload = {
         amount: valorInteiro,
-        receiver: "klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z", // seu endereço
+        receiver: "klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z", // endereço da loja
         kda: "KLV"
       };
 
-      // Monta, assina e envia a transação
+      // Monta, assina e transmite
       const unsignedTx = await web.buildTransaction([
         { payload, type: TransactionType.Transfer }
       ]);
@@ -565,7 +549,7 @@ btnConfirmarResumo.addEventListener("click", async () => {
         return;
       }
 
-      // Envia o pedido para o backend com o hash
+      // Envia o pedido + hash para o backend
       if (!pedidoParaEnviar.id) {
         pedidoParaEnviar.id = "pedido-" + Date.now();
       }
@@ -580,26 +564,26 @@ btnConfirmarResumo.addEventListener("click", async () => {
 
       if (res.ok) {
         alert("Transação enviada! Aguardando confirmação na blockchain.");
-        window.location.href = "aguardando.html?id=" + pedidoId;
+        window.location.href = "aguardando.html?id=" + pedidoParaEnviar.id;
       } else {
         alert("Erro ao registrar pedido no servidor.");
       }
+
     } catch (e) {
       console.error("❌ Erro no envio do pedido:", e);
       alert("Erro ao processar pagamento com cripto.");
     } finally {
       esconderLoader();
-      return;
     }
   }
-  // ...restante do fluxo para outros pagamentos...
 });
 
-// ...após receber o hash da transação e antes de salvar no localStorage...
 if (!pedidoParaEnviar.id) {
   pedidoParaEnviar.id = "pedido-" + Date.now();
 }
-const pedidoId = pedidoParaEnviar.id; // use sempre esta variável
+const pedidoId = pedidoParaEnviar.id; 
 localStorage.setItem("hashTransacao_" + pedidoId, hash);
 window.location.href = "aguardando.html?id=" + pedidoId;
+
+window.scrollParaCarrinho = scrollParaCarrinho;
 
