@@ -21,6 +21,7 @@ const nomeClienteInput = document.getElementById("nomeCliente");
 const emailClienteInput = document.getElementById("emailCliente");
 const celularClienteInput = document.getElementById("celularCliente");
 const formaPagamentoInput = document.getElementById("formaPagamento");
+const avisoKlever = document.getElementById("avisoKlever");
 const btnFinalizar = document.getElementById("finalizarPedido");
 const toggleInfo = document.getElementById("toggleInfo");
 const infoSection = document.getElementById("infoSection");
@@ -356,6 +357,12 @@ formaPagamentoInput.addEventListener("change", () => {
   } else {
     selectParcelas.style.display = "none";
     selectParcelas.value = "1";
+  }
+  if (avisoKlever) {
+    avisoKlever.classList.toggle(
+      "hidden",
+      formaPagamentoInput.value !== "CRIPTO"
+    );
   }
 });
 document.addEventListener("DOMContentLoaded", () => {
