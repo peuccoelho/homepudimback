@@ -89,7 +89,7 @@ export async function criarPedido(req, res) {
     pedido.txHash = req.body.txHash;
     await pedidosCollection.doc(pedidoId).set(pedido);
 
-    // Inicia monitoramento do hash
+    // monitoramento do hash
     monitorarTransacaoKlever(pedidoId, pedido.txHash, pedidosCollection);
 
     return res.json({
@@ -253,7 +253,7 @@ export async function criarPedidoCripto(req, res) {
   const chavePrivada = process.env.PRIVATE_KEY_KLEVER;
 
   try {
-    // 1. Cotação KLV/BRL com retry
+    // cotação KLV/BRL com retry
     let cotacao = null;
     let tentativas = 0;
     while (
@@ -287,9 +287,9 @@ export async function criarPedidoCripto(req, res) {
     }
 
     const valorKLV = total / cotacao.klever.brl;
-    const valorInteiro = Math.floor(valorKLV * 1e6); // precisão KLV
+    const valorInteiro = Math.floor(valorKLV * 1e6); 
 
-    // 2. Enviar transação usando o SDK novo
+    // transação usando o SDK 
     const account = new Account(chavePrivada);
     await account.ready;
 
@@ -311,7 +311,7 @@ export async function criarPedidoCripto(req, res) {
       throw new Error("Erro ao transmitir transação");
     }
 
-    // 5. Salvar pedido com hash
+    // pedido com hash
     const pedidoSalvo = {
       id: pedidoId,
       cliente,
@@ -327,12 +327,12 @@ export async function criarPedidoCripto(req, res) {
 
     await pedidosCollection.doc(pedidoId).set(pedidoSalvo);
 
-    // 6. Iniciar polling para confirmar
+    // polling para confirmar
     monitorarTransacaoKlever(hash, pedidoId, pedidosCollection, pedidoSalvo);
 
     res.json({ pedidoId, hash });
   } catch (erro) {
-    console.error("❌ Erro ao criar pedido com cripto:", erro);
+    console.error("Erro ao criar pedido com cripto:", erro);
     res.status(500).json({ erro: "Falha ao processar pagamento com Klever" });
   }
 }
@@ -347,7 +347,7 @@ async function monitorarTransacaoKlever(hash, pedidoId, pedidosCollection, pedid
       const tx = await res.json();
 
       if (tx.status === "success") {
-        console.log("✅ Transação confirmada:", hash);
+        console.log("Transação confirmada:", hash);
         await pedidosCollection.doc(pedidoId).update({ status: "a fazer" });
         enviarWhatsAppPedido(pedidoOriginal);
         clearInterval(intervalo);
@@ -358,7 +358,7 @@ async function monitorarTransacaoKlever(hash, pedidoId, pedidosCollection, pedid
 
     if (++tentativas >= max) {
       clearInterval(intervalo);
-      console.warn("⏱️ Timeout ao monitorar hash:", hash);
+      console.warn("Timeout ao monitorar hash:", hash);
     }
   }, 10000);
 }
