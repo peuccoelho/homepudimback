@@ -343,7 +343,8 @@ async function monitorarTransacaoKlever(hash, pedidoId, pedidosCollection, pedid
 
   const intervalo = setInterval(async () => {
     try {
-      const res = await fetch(`https://api.mainnet.klever.finance/v1/transaction/${hash}`);
+      // Troque para o domínio atualizado da KleverChain Mainnet
+      const res = await fetch(`https://api.klever.finance/v1/transaction/${hash}`);
       const tx = await res.json();
 
       if (tx.status === "success") {

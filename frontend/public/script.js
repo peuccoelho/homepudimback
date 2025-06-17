@@ -276,10 +276,10 @@ btnConfirmarResumo.addEventListener("click", async () => {
       modalResumo.classList.add("hidden");
       mostrarLoader();
 
-      // Configura o provedor Klever (mainnet)
+      // ✅ Provider atualizado conforme documentação oficial
       web.setProvider({
-        api: 'https://api.mainnet.klever.finance',
-        node: 'https://node.mainnet.klever.finance'
+        api: 'https://api.klever.finance',
+        node: 'https://node.klever.finance'
       });
       await web.initialize();
 
@@ -529,10 +529,10 @@ btnConfirmarResumo.addEventListener("click", async () => {
       modalResumo.classList.add("hidden");
       mostrarLoader();
 
-      // Configura o provedor Klever (mainnet)
+      // ✅ Provider atualizado conforme documentação oficial
       web.setProvider({
-        api: 'https://api.mainnet.klever.finance',
-        node: 'https://node.mainnet.klever.finance'
+        api: 'https://api.klever.finance',
+        node: 'https://node.klever.finance'
       });
       await web.initialize();
 
