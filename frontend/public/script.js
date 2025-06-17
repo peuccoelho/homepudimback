@@ -278,12 +278,32 @@ btnConfirmarResumo.addEventListener("click", async () => {
 
       let redeUsada = "mainnet";
       try {
-        const { rede } = await inicializarKleverProviderComFallback();
-        redeUsada = rede;
+        // Provider correto + log
+        web.setProvider({
+          api: 'https://proxy.mainnet.klever.org'
+        });
+        console.log("✅ Provider Klever configurado para: proxy.mainnet.klever.org");
+        await web.initialize();
+        // Testa se o proxy responde
+        const resp = await fetch('https://proxy.mainnet.klever.org/address/klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z/nonce');
+        if (!resp.ok) throw new Error("Proxy mainnet indisponível");
+        redeUsada = "mainnet";
       } catch (e) {
-        alert("Não foi possível conectar à rede Klever. Tente novamente mais tarde.");
-        esconderLoader();
-        return;
+        // Fallback para testnet
+        web.setProvider({
+          api: 'https://proxy.testnet.klever.org'
+        });
+        console.log("⚠️ Provider Klever configurado para: proxy.testnet.klever.org");
+        await web.initialize();
+        try {
+          const resp = await fetch('https://proxy.testnet.klever.org/address/klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z/nonce');
+          if (!resp.ok) throw new Error("Proxy testnet indisponível");
+          redeUsada = "testnet";
+        } catch (e2) {
+          alert("Não foi possível conectar à rede Klever. Tente novamente mais tarde.");
+          esconderLoader();
+          return;
+        }
       }
 
       if (redeUsada === "testnet") {
@@ -537,12 +557,32 @@ btnConfirmarResumo.addEventListener("click", async () => {
 
       let redeUsada = "mainnet";
       try {
-        const { rede } = await inicializarKleverProviderComFallback();
-        redeUsada = rede;
+        // Provider correto + log
+        web.setProvider({
+          api: 'https://proxy.mainnet.klever.org'
+        });
+        console.log("✅ Provider Klever configurado para: proxy.mainnet.klever.org");
+        await web.initialize();
+        // Testa se o proxy responde
+        const resp = await fetch('https://proxy.mainnet.klever.org/address/klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z/nonce');
+        if (!resp.ok) throw new Error("Proxy mainnet indisponível");
+        redeUsada = "mainnet";
       } catch (e) {
-        alert("Não foi possível conectar à rede Klever. Tente novamente mais tarde.");
-        esconderLoader();
-        return;
+        // Fallback para testnet
+        web.setProvider({
+          api: 'https://proxy.testnet.klever.org'
+        });
+        console.log("⚠️ Provider Klever configurado para: proxy.testnet.klever.org");
+        await web.initialize();
+        try {
+          const resp = await fetch('https://proxy.testnet.klever.org/address/klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z/nonce');
+          if (!resp.ok) throw new Error("Proxy testnet indisponível");
+          redeUsada = "testnet";
+        } catch (e2) {
+          alert("Não foi possível conectar à rede Klever. Tente novamente mais tarde.");
+          esconderLoader();
+          return;
+        }
       }
 
       if (redeUsada === "testnet") {
