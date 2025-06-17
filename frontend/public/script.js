@@ -447,3 +447,35 @@ function validarFormulario() {
     totalUnidades < 20;
 }
 
+// Atualiza validação e barra de progresso ao digitar nos campos
+[nomeClienteInput, emailClienteInput, celularClienteInput, formaPagamentoInput].forEach(input => {
+  if (input) {
+    input.addEventListener("input", () => {
+      validarFormulario();
+      atualizarBarraProgresso();
+    });
+    // Para select (formaPagamento), também escuta 'change'
+    if (input.tagName === "SELECT") {
+      input.addEventListener("change", () => {
+        validarFormulario();
+        atualizarBarraProgresso();
+      });
+    }
+  }
+});
+
+// Atualiza barra de progresso separadamente
+function atualizarBarraProgresso() {
+  const nomePreenchido = nomeClienteInput.value.trim() !== "";
+  const pagamentoEscolhido = formaPagamentoInput.value !== "";
+  const progresso =
+    (carrinho.length > 0 ? 33 : 0) +
+    (nomePreenchido ? 33 : 0) +
+    (pagamentoEscolhido ? 34 : 0);
+  if (barraProgresso) barraProgresso.style.width = `${progresso}%`;
+}
+
+// Chama ao carregar a página
+validarFormulario();
+atualizarBarraProgresso();
+
