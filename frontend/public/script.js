@@ -632,14 +632,14 @@ btnConfirmarResumo.addEventListener("click", async () => {
       modalResumo.classList.add("hidden");
       mostrarLoader();
 
-      // Configura o provedor Klever (mainnet)
+      // provedor Klever (mainnet)
       web.setProvider({
         api: 'https://api.mainnet.klever.finance',
         node: 'https://node.mainnet.klever.finance'
       });
       await web.initialize();
 
-      // Cotação do KLV
+      // cotação do KLV
       const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
         .then(r => r.json());
 
@@ -666,7 +666,7 @@ btnConfirmarResumo.addEventListener("click", async () => {
         return;
       }
 
-      // Envia o pedido + hash para o backend
+      // pedido + hash para o backend
       if (!pedidoParaEnviar.id) {
         pedidoParaEnviar.id = "pedido-" + Date.now();
       }
