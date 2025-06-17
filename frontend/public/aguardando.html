@@ -110,6 +110,12 @@
         id="hashTransacao"
         class="text-xs text-gray-500 mt-4 break-all"
       ></div>
+      <button
+        id="btnCopiarHash"
+        class="mt-2 bg-[#a47551] hover:bg-[#916546] text-white px-4 py-2 rounded-xl text-sm transition hidden"
+      >
+        Copiar hash da transação
+      </button>
     </div>
     <footer class="mt-10 text-sm text-gray-500 text-center">
       &copy; 2025 Papudim. Todos os direitos reservados.
@@ -147,6 +153,25 @@
 
         setInterval(verificarStatus, 5000);
         verificarStatus();
+      });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pedidoId = urlParams.get("id");
+        const hash = localStorage.getItem("hashTransacao_" + pedidoId);
+        const btnCopiar = document.getElementById("btnCopiarHash");
+        if (hash && btnCopiar) {
+          btnCopiar.classList.remove("hidden");
+          btnCopiar.onclick = function () {
+            navigator.clipboard.writeText(hash);
+            btnCopiar.textContent = "Copiado!";
+            setTimeout(
+              () => (btnCopiar.textContent = "Copiar hash da transação"),
+              1500
+            );
+          };
+        }
       });
     </script>
   </body>

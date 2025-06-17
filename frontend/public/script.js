@@ -331,7 +331,7 @@ btnConfirmarResumo.addEventListener("click", async () => {
       }
 
     } catch (e) {
-      console.error("❌ Erro no envio do pedido:", e);
+      console.error("Erro no envio do pedido:", e);
       alert("Erro ao processar pagamento com cripto.");
     } finally {
       esconderLoader();
