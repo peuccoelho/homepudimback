@@ -341,7 +341,11 @@ btnConfirmarResumo.addEventListener("click", async () => {
 
       const signedTx = await web.signTransaction(unsignedTx);
       const resultado = await web.broadcastTransactions([signedTx]);
-      const hash = resultado[0]?.hash;
+      // Corrija aqui:
+      const hash = resultado[0]?.txId || resultado[0]?.hash;
+
+      console.log("📡 Resposta do broadcast:", resultado);
+      console.log("📦 txHash detectado:", hash);
 
       if (!hash) {
         alert("Erro ao transmitir a transação.");
