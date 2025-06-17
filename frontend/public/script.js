@@ -212,17 +212,24 @@ btnFinalizar.addEventListener("click", async (e) => {
     }
   }
 
-  // Gera um id único para o pedido ANTES de enviar para o backend
-  if (!pedidoParaEnviar || !pedidoParaEnviar.id) {
-    pedidoParaEnviar = {
-      ...pedidoParaEnviar,
-      id: "pedido-" + Date.now()
-      // ...outros campos obrigatórios...
-    };
-  }
-  const pedidoId = pedidoParaEnviar.id;
+  // MONTA O OBJETO DO PEDIDO CORRETAMENTE!
+  pedidoParaEnviar = {
+    id: "pedido-" + Date.now(),
+    cliente: nome,
+    email,
+    celular: celular.replace(/\D/g, ""),
+    pagamento,
+    itens: carrinho.map(item => ({
+      nome: item.nome,
+      preco: item.preco,
+      peso: item.peso,
+      quantidade: item.quantidade
+    })),
+    total,
+    parcelas: pagamento === "CREDIT_CARD" ? parcelas : undefined
+  };
 
-  // Monta o resumo
+  // Monta o resumo (mantém igual)
   let html = `<ul class="mb-2">`;
   carrinho.forEach(item => {
     html += `<li>${escapeHTML(item.nome)} (${escapeHTML(item.peso)}) x${item.quantidade} - R$ ${(item.preco * item.quantidade).toFixed(2).replace(".", ",")}</li>`;
