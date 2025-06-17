@@ -341,8 +341,8 @@ btnConfirmarResumo.addEventListener("click", async () => {
 
       const signedTx = await web.signTransaction(unsignedTx);
       const resultado = await web.broadcastTransactions([signedTx]);
-      // const hash = resultado[0]?.txId || resultado[0]?.hash;
-      const hash = resultado?.txId || resultado?.hash;
+      // Correção definitiva:
+      const hash = resultado?.data?.txsHashes?.[0];
 
       console.log("📡 Resposta do Klever SDK:", resultado);
       console.log("📦 txHash detectado:", hash);
@@ -352,6 +352,9 @@ btnConfirmarResumo.addEventListener("click", async () => {
         esconderLoader();
         return;
       }
+
+      // (Opcional) Abrir no KleverScan:
+      // window.open(`https://kleverscan.org/tx/${hash}`, "_blank");
 
       if (!pedidoParaEnviar.id) {
         pedidoParaEnviar.id = "pedido-" + Date.now();
