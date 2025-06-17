@@ -605,31 +605,28 @@ btnConfirmarResumo.addEventListener("click", async () => {
 });
 
 async function inicializarKleverProviderComFallback() {
-  // 1. Tenta mainnet
+  // 1. Tenta mainnet via proxy oficial
   try {
     web.setProvider({
-      api: 'https://api.klever.finance',
-      node: 'https://node.klever.finance'
+      api: 'https://proxy.mainnet.klever.org'
     });
     await web.initialize();
-    // Testa se o node responde (pega o nonce do endereço da loja)
-    const resp = await fetch('https://node.klever.finance/address/klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z/nonce');
-    if (!resp.ok) throw new Error("Node mainnet indisponível");
+    // Testa se o proxy responde (pega o nonce do endereço da loja)
+    const resp = await fetch('https://proxy.mainnet.klever.org/address/klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z/nonce');
+    if (!resp.ok) throw new Error("Proxy mainnet indisponível");
     return { rede: "mainnet" };
   } catch (e) {
-    // 2. Fallback para testnet
+    // 2. Fallback para testnet (proxy)
     web.setProvider({
-      api: 'https://api.testnet.klever.finance',
-      node: 'https://node.testnet.klever.finance'
+      api: 'https://proxy.testnet.klever.org'
     });
     await web.initialize();
-    // Testa se o node responde
     try {
-      const resp = await fetch('https://node.testnet.klever.finance/address/klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z/nonce');
-      if (!resp.ok) throw new Error("Node testnet indisponível");
+      const resp = await fetch('https://proxy.testnet.klever.org/address/klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z/nonce');
+      if (!resp.ok) throw new Error("Proxy testnet indisponível");
       return { rede: "testnet" };
     } catch (e2) {
-      throw new Error("Nenhum node Klever disponível no momento.");
+      throw new Error("Nenhum endpoint Klever disponível no momento.");
     }
   }
 }
