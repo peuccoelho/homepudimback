@@ -585,6 +585,9 @@ btnConfirmarResumo.addEventListener("click", async () => {
   }
 });
 
+if (!pedidoParaEnviar) {
+  pedidoParaEnviar = {};
+}
 if (!pedidoParaEnviar.id) {
   pedidoParaEnviar.id = "pedido-" + Date.now();
 }
