@@ -119,8 +119,7 @@ function atualizarCarrinho() {
     // contra XSS no innerHTML
     carrinhoContainer.innerHTML =
       '<li class="text-gray-500 italic">Nenhum item no carrinho</li>';
-    const aviso = document.getElementById("avisoMinimo");
-    if (aviso) aviso.classList.add("hidden");
+    
     validarFormulario();
     return;
   }
@@ -192,10 +191,7 @@ btnFinalizar.addEventListener("click", async (e) => {
     exibirToast("Digite um número de celular válido (apenas números, com DDD).");
     return;
   }
-  if (totalUnidades < 20) {
-    exibirToast("A quantidade mínima para pedidos é de 20 unidades.");
-    return;
-  }
+  
 
   const total = Number(
     carrinho.reduce((sum, item) => sum + item.preco * item.quantidade, 0).toFixed(2)
