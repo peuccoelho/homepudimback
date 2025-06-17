@@ -507,8 +507,7 @@ function validarFormulario() {
     !email ||
     !celular ||
     !pagamento ||
-    carrinho.length === 0 ||
-    totalUnidades < 20;
+    carrinho.length === 0;
 }
 
 // Atualiza validação e barra de progresso ao digitar nos campos

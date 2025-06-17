@@ -75,9 +75,9 @@ export async function criarPedido(req, res) {
   totalCalculado = Number(totalCalculado.toFixed(2));
 
   const totalUnidades = itensSanitizados.reduce((sum, item) => sum + item.quantidade, 0);
-  if (totalUnidades < 20) {
-    return res.status(400).json({ erro: "A quantidade mínima para pedidos é de 20 unidades." });
-  }
+  // if (totalUnidades < 20) {
+  //   return res.status(400).json({ erro: "A quantidade mínima para pedidos é de 20 unidades." });
+  // }
 
   const pedidoId = pedido.id || `pedido-${Date.now()}`;
   pedido.id = pedidoId;
