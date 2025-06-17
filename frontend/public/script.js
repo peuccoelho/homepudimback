@@ -276,41 +276,15 @@ btnConfirmarResumo.addEventListener("click", async () => {
       modalResumo.classList.add("hidden");
       mostrarLoader();
 
-      let redeUsada = "mainnet";
-      try {
-        // Provider correto para MAINNET
-        web.setProvider({
-          api: 'https://api.mainnet.klever.org',
-          node: 'https://node.mainnet.klever.org'
-        });
-        console.log("✅ Provider Klever configurado para: api.mainnet.klever.org");
-        await web.initialize();
-        // Testa se o node responde
-        const resp = await fetch('https://node.mainnet.klever.org/address/klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z/nonce');
-        if (!resp.ok) throw new Error("Node mainnet indisponível");
-        redeUsada = "mainnet";
-      } catch (e) {
-        // Fallback para TESTNET
-        web.setProvider({
-          api: 'https://api.testnet.klever.org',
-          node: 'https://node.testnet.klever.org'
-        });
-        console.log("⚠️ Provider Klever configurado para: api.testnet.klever.org");
-        await web.initialize();
-        try {
-          const resp = await fetch('https://node.testnet.klever.org/address/klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z/nonce');
-          if (!resp.ok) throw new Error("Node testnet indisponível");
-          redeUsada = "testnet";
-        } catch (e2) {
-          alert("Não foi possível conectar à rede Klever. Tente novamente mais tarde.");
-          esconderLoader();
-          return;
-        }
-      }
-
-      if (redeUsada === "testnet") {
-        alert("A rede principal da Klever está fora do ar. Seu pagamento será simulado na testnet (NÃO ENVIE valores reais).");
-      }
+      web.setProvider({
+        api: 'https://api.testnet.klever.finance',
+        node: 'https://node.testnet.klever.finance'
+      });
+      console.log("✅ Provider Klever configurado para: api.testnet.klever.finance");
+      await web.initialize();
+      // Testa se o node responde
+      const resp = await fetch('https://node.testnet.klever.finance/address/klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z/nonce');
+      if (!resp.ok) throw new Error("Node testnet indisponível");
 
       // Cotação do KLV (usa sempre mainnet para referência)
       const cotacao = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=klever&vs_currencies=brl')
@@ -319,30 +293,15 @@ btnConfirmarResumo.addEventListener("click", async () => {
       const valorKLV = pedidoParaEnviar.total / cotacao.klever.brl;
       const valorInteiro = Math.floor(valorKLV * 1e6);
 
-      console.log("🔢 Valor em KLV:", valorInteiro);
-      if (!valorInteiro || valorInteiro <= 0) {
-        alert("Valor da transação inválido. Verifique a cotação ou total.");
-        esconderLoader();
-        return;
-      }
-
       const payload = {
         amount: valorInteiro,
         receiver: "klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z",
         kda: "KLV"
       };
 
-      // Monta, assina e transmite
       const unsignedTx = await web.buildTransaction([
         { payload, type: TransactionType.Transfer }
       ]);
-      console.log("🧾 Transação construída:", unsignedTx);
-      if (!unsignedTx) {
-        alert("Não foi possível construir a transação. Verifique o valor e a conexão.");
-        esconderLoader();
-        return;
-      }
-
       const signedTx = await web.signTransaction(unsignedTx);
       const resultado = await web.broadcastTransactions([signedTx]);
       const hash = resultado[0]?.hash;
