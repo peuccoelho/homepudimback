@@ -430,3 +430,20 @@ function exibirToast(msg) {
   }, 1800);
 }
 
+function validarFormulario() {
+  // Habilita ou desabilita o botão de finalizar conforme os campos obrigatórios
+  const nome = nomeClienteInput.value.trim();
+  const email = emailClienteInput.value.trim();
+  const celular = celularClienteInput.value.trim();
+  const pagamento = formaPagamentoInput.value;
+  const totalUnidades = carrinho.reduce((sum, item) => sum + item.quantidade, 0);
+
+  btnFinalizar.disabled =
+    !nome ||
+    !email ||
+    !celular ||
+    !pagamento ||
+    carrinho.length === 0 ||
+    totalUnidades < 20;
+}
+
