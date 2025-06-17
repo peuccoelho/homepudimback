@@ -408,3 +408,25 @@ async function inicializarKleverProviderComFallback() {
   }
 }
 
+function exibirToast(msg) {
+  let container = document.getElementById("toastContainer");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "toastContainer";
+    container.style.position = "fixed";
+    container.style.top = "1rem";
+    container.style.right = "1rem";
+    container.style.zIndex = "9999";
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement("div");
+  toast.className =
+    "bg-[#a47551] text-white px-4 py-2 rounded-xl shadow mb-2 animate-fade-in";
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    setTimeout(() => toast.remove(), 400);
+  }, 1800);
+}
+
