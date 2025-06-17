@@ -408,6 +408,38 @@ async function inicializarKleverProviderComFallback() {
   }
 }
 
+// Loader simples para feedback visual
+function mostrarLoader() {
+  let loader = document.getElementById("papudimLoader");
+  if (!loader) {
+    loader = document.createElement("div");
+    loader.id = "papudimLoader";
+    loader.style.position = "fixed";
+    loader.style.top = "0";
+    loader.style.left = "0";
+    loader.style.width = "100vw";
+    loader.style.height = "100vh";
+    loader.style.background = "rgba(255,255,255,0.7)";
+    loader.style.display = "flex";
+    loader.style.alignItems = "center";
+    loader.style.justifyContent = "center";
+    loader.style.zIndex = "99999";
+    loader.innerHTML = `
+      <div style="text-align:center">
+        <div class="animate-spin" style="border:4px solid #e2cdb0;border-top:4px solid #a47551;border-radius:50%;width:48px;height:48px;margin:auto"></div>
+        <div style="margin-top:16px;color:#a47551;font-weight:bold">Processando...</div>
+      </div>
+    `;
+    document.body.appendChild(loader);
+  }
+  loader.style.display = "flex";
+}
+
+function esconderLoader() {
+  const loader = document.getElementById("papudimLoader");
+  if (loader) loader.style.display = "none";
+}
+
 function exibirToast(msg) {
   let container = document.getElementById("toastContainer");
   if (!container) {
