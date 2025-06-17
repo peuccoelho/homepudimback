@@ -341,10 +341,10 @@ btnConfirmarResumo.addEventListener("click", async () => {
 
       const signedTx = await web.signTransaction(unsignedTx);
       const resultado = await web.broadcastTransactions([signedTx]);
-      // Corrija aqui:
-      const hash = resultado[0]?.txId || resultado[0]?.hash;
+      // const hash = resultado[0]?.txId || resultado[0]?.hash;
+      const hash = resultado?.txId || resultado?.hash;
 
-      console.log("📡 Resposta do broadcast:", resultado);
+      console.log("📡 Resposta do Klever SDK:", resultado);
       console.log("📦 txHash detectado:", hash);
 
       if (!hash) {
