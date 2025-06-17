@@ -378,6 +378,38 @@ btnConfirmarResumo.addEventListener("click", async () => {
     } finally {
       esconderLoader();
     }
+  } else if (
+    pedidoParaEnviar.pagamento === "PIX" ||
+    pedidoParaEnviar.pagamento === "CREDIT_CARD"
+  ) {
+    try {
+      modalResumo.classList.add("hidden");
+      mostrarLoader();
+
+      // Envia o pedido para o backend
+      const res = await fetch("https://homepudimback.onrender.com/api/pagar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pedidoParaEnviar),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        // Redireciona para o link de pagamento do Asaas
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert("Erro ao gerar link de pagamento.");
+        }
+      } else {
+        const erro = await res.json();
+        alert(erro.erro || "Erro ao processar pedido.");
+      }
+    } catch (e) {
+      alert("Erro ao processar pedido.");
+    } finally {
+      esconderLoader();
+    }
   }
 });
 
