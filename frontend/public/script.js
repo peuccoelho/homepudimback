@@ -577,23 +577,11 @@ btnConfirmarResumo.addEventListener("click", async () => {
       }
 
     } catch (e) {
-      console.error("❌ Erro no envio do pedido:", e);
+      console.error("Erro no envio do pedido:", e);
       alert("Erro ao processar pagamento com cripto.");
     } finally {
       esconderLoader();
     }
   }
 });
-
-if (!pedidoParaEnviar) {
-  pedidoParaEnviar = {};
-}
-if (!pedidoParaEnviar.id) {
-  pedidoParaEnviar.id = "pedido-" + Date.now();
-}
-const pedidoId = pedidoParaEnviar.id; 
-localStorage.setItem("hashTransacao_" + pedidoId, hash);
-window.location.href = "aguardando.html?id=" + pedidoId;
-
-window.scrollParaCarrinho = scrollParaCarrinho;
 
