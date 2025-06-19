@@ -280,15 +280,15 @@ export async function atualizarStatusPedido(req, res) {
 // Substitua o trecho de cotação do KLV em criarPedidoCripto para usar apenas Moralis
 export async function criarPedidoCripto(req, res) {
   const { pedidosCollection } = req.app.locals;
-  const pedido = req.body;
-  const { cliente, email, celular, pagamento, itens, total, destino } = pedido;
-
-  const pedidoId = `pedido-${Date.now()}`;
-  const enderecoDestino = destino || process.env.ENDERECO_KLEVER;
-  const chavePrivada = process.env.PRIVATE_KEY_KLEVER;
-
   try {
-    // NOVO: cotação KLV/BRL usando Moralis
+    const { pedido, txHash } = req.body;
+
+    if (!pedido || !txHash) {
+      console.warn("❌ Pedido ou hash ausentes na requisição:", req.body);
+      return res.status(400).json({ erro: "Pedido ou txHash ausentes." });
+    }
+
+    // Recalcula cotação e valor em KLV para registro
     const cotacaoBRL = await obterCotacaoKLV();
     if (!cotacaoBRL || cotacaoBRL <= 0) {
       return res.status(503).json({
@@ -297,54 +297,27 @@ export async function criarPedidoCripto(req, res) {
       });
     }
 
-    const valorKLV = total / cotacaoBRL;
-    const valorInteiro = Math.floor(valorKLV * 1e6); 
+    const valorKLV = pedido.total / cotacaoBRL;
+    const valorInteiro = Math.floor(valorKLV * 1e6);
 
-    // transação usando o SDK 
-    const account = new Account(chavePrivada);
-    await account.ready;
-
-    const payload = {
-      amount: valorInteiro.toString(),
-      receiver: enderecoDestino,
-      kda: "KLV"
-    };
-
-    const result = await account.quickSend([
-      {
-        payload,
-        type: TransactionType.Transfer
-      }
-    ]);
-
-    const hash = result?.data?.txsHashes?.[0];
-    if (!hash) {
-      throw new Error("Erro ao transmitir transação");
-    }
-
-    // pedido com hash
+    const pedidoId = pedido.id || `pedido-${Date.now()}`;
     const pedidoSalvo = {
+      ...pedido,
       id: pedidoId,
-      cliente,
-      email,
-      celular,
-      pagamento,
-      itens,
-      total,
-      status: "pendente",
-      txHash: hash,
-      destino: enderecoDestino
+      txHash,
+      valorKLV: valorInteiro,
+      status: "pendente"
     };
 
     await pedidosCollection.doc(pedidoId).set(pedidoSalvo);
 
-    // polling para confirmar
-    monitorarTransacaoKlever(hash, pedidoId, pedidosCollection, pedidoSalvo);
+    // Inicia monitoramento da transação
+    monitorarTransacaoKlever(txHash, pedidoId, pedidosCollection, pedidoSalvo);
 
-    res.json({ pedidoId, hash });
+    res.json({ pedidoId, hash: txHash });
   } catch (erro) {
-    console.error("Erro ao criar pedido com cripto:", erro);
-    res.status(500).json({ erro: "Falha ao processar pagamento com Klever" });
+    console.error("❌ Erro no back-end ao processar pedido:", erro);
+    res.status(500).json({ erro: "Erro interno no servidor." });
   }
 }
 

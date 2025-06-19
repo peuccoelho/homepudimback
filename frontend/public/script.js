@@ -365,7 +365,7 @@ btnConfirmarResumo.addEventListener("click", async () => {
       const res = await fetch("https://homepudimback.onrender.com/api/pagamento-cripto", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...pedidoParaEnviar, txHash: hash })
+        body: JSON.stringify({ pedido: pedidoParaEnviar, txHash: hash })
       });
 
       if (res.ok) {
