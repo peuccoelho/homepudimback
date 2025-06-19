@@ -42,14 +42,12 @@ async function obterCotacaoKLV() {
       }
     );
     const precoUSD = response.data.usdPrice;
-    // Você pode buscar a cotação USD/BRL de uma API, mas aqui usamos um valor fixo
-    const precoBRL = precoUSD * 5.2;
+    const precoBRL = precoUSD * 5.2; // ou use uma API para cotação USD/BRL
     cacheCotacaoKLV = { valor: precoBRL, timestamp: agora };
     return precoBRL;
   } catch (error) {
     console.error("❌ Erro ao consultar cotação na Moralis:", error.message);
-    // Fallback para valor simbólico
-    return 0.01;
+    return 0.01; // fallback
   }
 }
 
@@ -288,7 +286,6 @@ export async function criarPedidoCripto(req, res) {
       return res.status(400).json({ erro: "Pedido ou txHash ausentes." });
     }
 
-    // Recalcula cotação e valor em KLV para registro
     const cotacaoBRL = await obterCotacaoKLV();
     if (!cotacaoBRL || cotacaoBRL <= 0) {
       return res.status(503).json({
@@ -311,7 +308,6 @@ export async function criarPedidoCripto(req, res) {
 
     await pedidosCollection.doc(pedidoId).set(pedidoSalvo);
 
-    // Inicia monitoramento da transação
     monitorarTransacaoKlever(txHash, pedidoId, pedidosCollection, pedidoSalvo);
 
     res.json({ pedidoId, hash: txHash });

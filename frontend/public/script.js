@@ -313,17 +313,12 @@ btnConfirmarResumo.addEventListener("click", async () => {
         .then(r => r.json());
 
       const valorKLV = pedidoParaEnviar.total / cotacao.klever.brl;
-      const valorInteiro = Math.floor(valorKLV * 1e6);
+      const valorInteiro = Math.floor(valorKLV * 1e6); // <-- sempre número
 
-      console.log("🔢 Valor em KLV:", valorInteiro);
-      if (!valorInteiro || valorInteiro <= 0) {
-        alert("Valor da transação inválido. Verifique a cotação ou total.");
-        esconderLoader();
-        return;
-      }
+      console.log("🔢 typeof amount:", typeof valorInteiro); // deve ser 'number'
 
       const payload = {
-        amount: valorInteiro,
+        amount: valorInteiro, // <-- sem aspas!
         receiver: "klv1mhwnrlrpzpv0vegq6tu5khjn7m27azrvt44l328765yh6aq4xheq5vgn4z",
         kda: "KLV"
       };
