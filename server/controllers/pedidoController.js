@@ -323,11 +323,17 @@ async function monitorarTransacaoKlever(hash, pedidoId, pedidosCollection, pedid
 
   const intervalo = setInterval(async () => {
     try {
-      // Troque para o domínio atualizado da KleverChain Mainnet
       const res = await fetch(`https://api.mainnet.klever.org/v1.0/transaction/${hash}`);
       const tx = await res.json();
+      console.log("Resposta da KleverChain para hash", hash, ":", JSON.stringify(tx));
 
-      if (tx.status === "success") {
+      // Tente identificar o campo correto de status
+      const statusKlever =
+        tx.status?.toLowerCase?.() ||
+        tx.data?.status?.toLowerCase?.() ||
+        tx.result?.status?.toLowerCase?.();
+
+      if (statusKlever === "success" || statusKlever === "successful" || statusKlever === "confirmed") {
         console.log("Transação confirmada:", hash);
         await pedidosCollection.doc(pedidoId).update({ status: "a fazer" });
         enviarWhatsAppPedido(pedidoOriginal);
