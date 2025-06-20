@@ -38,9 +38,13 @@ const access_token = process.env.access_token;
 const ASAAS_API = "https://api-sandbox.asaas.com/";
 
 app.use(cors({
-  origin: ["https://papudim.netlify.app", "http://localhost:5173"], 
+  origin: ["https://papudim.netlify.app", "http://localhost:5173"],
   credentials: true,
 }));
+
+// Habilita preflight para todas as rotas
+app.options("*", cors());
+
 app.use(express.json({ limit: "200kb" }));
 app.use(helmet());
 app.use((req, res, next) => {
