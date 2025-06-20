@@ -42,8 +42,6 @@ app.use(cors({
   credentials: true,
 }));
 
-// Habilita preflight para todas as rotas
-app.options("*", cors());
 
 app.use(express.json({ limit: "200kb" }));
 app.use(helmet());
