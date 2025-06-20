@@ -344,7 +344,7 @@ export async function criarPedidoCripto(req, res) {
 
     await pedidosCollection.doc(pedidoId).set(pedidoSalvo);
 
-    monitorarTransacaoKlever(txHash, pedidoId, pedidosCollection, pedidoSalvo);
+    monitorarTransacaoKlever(pedidoId, txHash, pedidosCollection, pedidoSalvo);
 
     res.json({ pedidoId, hash: txHash });
   } catch (erro) {
