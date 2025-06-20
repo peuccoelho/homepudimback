@@ -249,21 +249,26 @@ export async function statusPedido(req, res) {
       return res.json({ status: pedido.status });
     }
 
-    // Consulta o status da transação na KleverChain
-    const resp = await fetch(`https://api.mainnet.klever.org/v1.0/transaction/${pedido.txHash}`);
-    const tx = await resp.json();
-    // Log para depuração
-    console.log("Consulta status-pedido:", id, "Resposta:", JSON.stringify(tx));
+    // Busca o hash correto salvo no pedido!
+    const hash = pedido.txHash;
+    if (!hash) {
+      return res.status(400).json({ erro: "Hash da transação não encontrado para o pedido" });
+    }
 
-    // Checa status e resultCode
-    const statusKlever = tx.status?.toLowerCase?.();
-    const resultCode = tx.resultCode || tx.data?.resultCode;
+    // Consulta o status da transação na KleverChain usando o hash correto
+    const resp = await fetch(`https://api.mainnet.klever.org/v1.0/transaction/${hash}`);
+    const tx = await resp.json();
+    console.log("Consulta status-pedido:", id, "Hash:", hash, "Resposta:", JSON.stringify(tx));
+
+    // Checa status e resultCode (pode estar em tx ou tx.data.transaction)
+    const kleverTx = tx.data?.transaction || tx;
+    const statusKlever = kleverTx.status?.toLowerCase?.();
+    const resultCode = kleverTx.resultCode || kleverTx.data?.resultCode;
 
     if (
       (statusKlever === "success" || statusKlever === "successful" || statusKlever === "confirmed") &&
       (resultCode === "Ok" || resultCode === "ok")
     ) {
-      // Atualiza o pedido para "pago"
       await pedidosCollection.doc(id).update({ status: "pago" });
       return res.json({ status: "pago" });
     }
