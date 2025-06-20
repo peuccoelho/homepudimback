@@ -165,13 +165,13 @@ export async function criarPedido(req, res) {
   }
 }
 
-function enviarWhatsAppPedido(pedido) {
+async function enviarWhatsAppPedido(pedido) {
   const numero = process.env.CALLMEBOT_NUMERO;
   const apikey = process.env.CALLMEBOT_APIKEY;
 
   if (!numero || !apikey) {
-    console.error("❌ Variáveis CallMeBot ausentes!", { numero, apikey });
-    return Promise.reject(new Error('Variáveis CallMeBot ausentes'));
+    console.error("❌ Variáveis do CallMeBot ausentes:", { numero, apikey });
+    return;
   }
 
   const itensTexto = pedido.itens
@@ -179,37 +179,26 @@ function enviarWhatsAppPedido(pedido) {
     .join(" | ");
   const total = Number(pedido.total).toFixed(2);
 
-  let infoParcelas = "";
-  if (
-    pedido.pagamento &&
-    pedido.pagamento.toUpperCase() === "CREDIT_CARD" &&
-    Number(pedido.parcelas) > 1
-  ) {
-    infoParcelas = `\nPagamento parcelado em ${pedido.parcelas}x no cartão.`;
-  }
-
   const mensagem = `✅ Pagamento confirmado!
 Cliente: ${pedido.cliente}
 E-mail: ${pedido.email}
 Celular: ${pedido.celular}
 Total: R$ ${total}
-Itens: ${itensTexto}${infoParcelas}`;
+Itens: ${itensTexto}`;
 
   const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(numero)}&text=${encodeURIComponent(mensagem)}&apikey=${apikey}`;
 
-  return fetch(url)
-    .then(res => res.text())
-    .then(resposta => {
-      console.log("✅ CallMeBot respondeu:", resposta);
-      if (!resposta.includes("Message Sent")) {
-        throw new Error("Falha CallMeBot: " + resposta);
-      }
-      return true;
-    })
-    .catch(err => {
-      console.error("❌ Erro ao enviar WhatsApp:", err.message);
-      throw err;
-    });
+  try {
+    const res = await fetch(url);
+    const texto = await res.text();
+    console.log("✅ CallMeBot resposta:", texto);
+
+    if (!texto.includes("Message Sent")) {
+      console.warn("⚠️ CallMeBot falhou:", texto);
+    }
+  } catch (e) {
+    console.error("❌ Erro ao enviar WhatsApp:", e.message);
+  }
 }
 
 export async function pagamentoWebhook(req, res) {
@@ -390,7 +379,11 @@ async function monitorarTransacaoKlever(pedidoId, hash, pedidosCollection, pedid
         const pedidoAtualizado = pedidoDoc.exists ? pedidoDoc.data() : pedidoOriginal;
         pedidoAtualizado.status = "a fazer";
 
-        enviarWhatsAppPedido(pedidoAtualizado);
+        try {
+          await enviarWhatsAppPedido(pedidoAtualizado);
+        } catch (e) {
+          console.error("❌ Erro ao enviar WhatsApp após confirmação:", e.message);
+        }
 
         clearInterval(intervalo);
       }

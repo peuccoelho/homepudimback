@@ -83,11 +83,6 @@ app.post("/api/login", loginLimiter, (req, res) => {
   return res.status(401).json({ erro: "Senha incorreta" });
 });
 
-app.use("/api/pagar", pedidoLimiter);
-app.use("/api/pagamento-webhook", pedidoLimiter);
-app.use("/api/status-pedido", pedidoLimiter);
-app.use("/api/admin-pedidos", adminLimiter);
-
 app.locals.pedidosCollection = pedidosCollection;
 app.locals.ASAAS_API = ASAAS_API;
 
