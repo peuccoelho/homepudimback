@@ -238,7 +238,38 @@ export async function statusPedido(req, res) {
     }
 
     const pedido = pedidoDoc.data();
-    res.json({ status: pedido.status });
+
+    // Se não for cripto, retorna status salvo normalmente
+    if (pedido.pagamento !== "CRIPTO" || !pedido.txHash) {
+      return res.json({ status: pedido.status });
+    }
+
+    // Se já está marcado como "a fazer" ou "pago", retorna imediatamente
+    if (pedido.status === "a fazer" || pedido.status === "pago") {
+      return res.json({ status: pedido.status });
+    }
+
+    // Consulta o status da transação na KleverChain
+    const resp = await fetch(`https://api.mainnet.klever.org/v1.0/transaction/${pedido.txHash}`);
+    const tx = await resp.json();
+    // Log para depuração
+    console.log("Consulta status-pedido:", id, "Resposta:", JSON.stringify(tx));
+
+    // Checa status e resultCode
+    const statusKlever = tx.status?.toLowerCase?.();
+    const resultCode = tx.resultCode || tx.data?.resultCode;
+
+    if (
+      (statusKlever === "success" || statusKlever === "successful" || statusKlever === "confirmed") &&
+      (resultCode === "Ok" || resultCode === "ok")
+    ) {
+      // Atualiza o pedido para "pago"
+      await pedidosCollection.doc(id).update({ status: "pago" });
+      return res.json({ status: "pago" });
+    }
+
+    // Ainda não confirmado
+    return res.json({ status: "pendente" });
   } catch (error) {
     console.error("Erro ao consultar pedido:", error);
     res.status(500).json({ erro: "Erro ao consultar status" });
