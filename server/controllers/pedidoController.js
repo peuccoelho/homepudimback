@@ -363,15 +363,18 @@ async function monitorarTransacaoKlever(pedidoId, hash, pedidosCollection, pedid
     try {
       const res = await fetch(`https://api.mainnet.klever.org/v1.0/transaction/${hash}`);
       const tx = await res.json();
-      console.log("Resposta da KleverChain para hash", hash, ":", JSON.stringify(tx));
+      console.log("🟡 [Klever] Resposta para hash", hash, ":", JSON.stringify(tx));
 
       const statusKlever =
         tx.status?.toLowerCase?.() ||
         tx.data?.status?.toLowerCase?.() ||
         tx.result?.status?.toLowerCase?.();
 
+      console.log("🔎 statusKlever:", statusKlever);
+
       if (statusKlever === "success" || statusKlever === "successful" || statusKlever === "confirmed") {
-        console.log("Transação confirmada:", hash);
+        console.log("✅ Entrou no if success. Vai atualizar status e enviar WhatsApp.");
+
         await pedidosCollection.doc(pedidoId).update({ status: "a fazer" });
 
         // Busca o pedido atualizado do Firestore para garantir todos os campos
@@ -380,7 +383,9 @@ async function monitorarTransacaoKlever(pedidoId, hash, pedidosCollection, pedid
         pedidoAtualizado.status = "a fazer";
 
         try {
+          console.log("🚀 Chamando enviarWhatsAppPedido...");
           await enviarWhatsAppPedido(pedidoAtualizado);
+          console.log("✅ enviarWhatsAppPedido executado.");
         } catch (e) {
           console.error("❌ Erro ao enviar WhatsApp após confirmação:", e.message);
         }
