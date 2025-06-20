@@ -169,14 +169,15 @@ function enviarWhatsAppPedido(pedido) {
   const numero = process.env.CALLMEBOT_NUMERO;
   const apikey = process.env.CALLMEBOT_APIKEY;
 
-  // Log para garantir que as variáveis estão corretas
-  console.log("📱 CallMeBot Config =>", numero, apikey);
+  if (!numero || !apikey) {
+    console.error("❌ Variáveis CallMeBot ausentes!", { numero, apikey });
+    return Promise.reject(new Error('Variáveis CallMeBot ausentes'));
+  }
 
   const itensTexto = pedido.itens
     .map(i => `${i.nome} x${i.quantidade}`)
     .join(" | ");
   const total = Number(pedido.total).toFixed(2);
-
 
   let infoParcelas = "";
   if (
@@ -196,15 +197,19 @@ Itens: ${itensTexto}${infoParcelas}`;
 
   const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(numero)}&text=${encodeURIComponent(mensagem)}&apikey=${apikey}`;
 
-  fetch(url)
+  return fetch(url)
     .then(res => res.text())
     .then(resposta => {
-      console.log("✅ CallMeBot resposta:", resposta);
+      console.log("✅ CallMeBot respondeu:", resposta);
       if (!resposta.includes("Message Sent")) {
-        console.warn("⚠️ CallMeBot falhou ao enviar:", resposta);
+        throw new Error("Falha CallMeBot: " + resposta);
       }
+      return true;
     })
-    .catch(err => console.error("❌ Erro ao enviar WhatsApp:", err));
+    .catch(err => {
+      console.error("❌ Erro ao enviar WhatsApp:", err.message);
+      throw err;
+    });
 }
 
 export async function pagamentoWebhook(req, res) {
@@ -380,9 +385,12 @@ async function monitorarTransacaoKlever(pedidoId, hash, pedidosCollection, pedid
         console.log("Transação confirmada:", hash);
         await pedidosCollection.doc(pedidoId).update({ status: "a fazer" });
 
-        // Garante que o status enviado ao WhatsApp está atualizado
-        const atualizado = { ...pedidoOriginal, status: "a fazer" };
-        enviarWhatsAppPedido(atualizado);
+        // Busca o pedido atualizado do Firestore para garantir todos os campos
+        const pedidoDoc = await pedidosCollection.doc(pedidoId).get();
+        const pedidoAtualizado = pedidoDoc.exists ? pedidoDoc.data() : pedidoOriginal;
+        pedidoAtualizado.status = "a fazer";
+
+        enviarWhatsAppPedido(pedidoAtualizado);
 
         clearInterval(intervalo);
       }
