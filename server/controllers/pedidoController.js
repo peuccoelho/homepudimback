@@ -122,7 +122,7 @@ export async function criarPedido(req, res) {
     await pedidosCollection.doc(pedidoId).set(pedido);
 
     // monitoramento do hash
-    monitorarTransacaoKlever(pedidoId, pedido.txHash, pedidosCollection);
+    monitorarTransacaoKlever(pedidoId, txHash, pedidosCollection, pedidoSalvo);
 
     return res.json({
       mensagem: "Pedido registrado. Aguardando confirmação na blockchain.",
@@ -348,7 +348,7 @@ export async function criarPedidoCripto(req, res) {
   }
 }
 
-async function monitorarTransacaoKlever(hash, pedidoId, pedidosCollection, pedidoOriginal) {
+async function monitorarTransacaoKlever(pedidoId, hash, pedidosCollection, pedidoOriginal) {
   let tentativas = 0;
   const max = 30;
 
@@ -358,7 +358,6 @@ async function monitorarTransacaoKlever(hash, pedidoId, pedidosCollection, pedid
       const tx = await res.json();
       console.log("Resposta da KleverChain para hash", hash, ":", JSON.stringify(tx));
 
-      // Tente identificar o campo correto de status
       const statusKlever =
         tx.status?.toLowerCase?.() ||
         tx.data?.status?.toLowerCase?.() ||
@@ -366,7 +365,7 @@ async function monitorarTransacaoKlever(hash, pedidoId, pedidosCollection, pedid
 
       if (statusKlever === "success" || statusKlever === "successful" || statusKlever === "confirmed") {
         console.log("Transação confirmada:", hash);
-        await pedidosCollection.doc(pedidoId).update({ status: "a fazer" });
+        await pedidosCollection.doc(pedidoId).update({ status: "a fazer" }); // ou "a fazer" se preferir
         enviarWhatsAppPedido(pedidoOriginal);
         clearInterval(intervalo);
       }
