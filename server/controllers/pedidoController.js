@@ -169,6 +169,9 @@ function enviarWhatsAppPedido(pedido) {
   const numero = process.env.CALLMEBOT_NUMERO;
   const apikey = process.env.CALLMEBOT_APIKEY;
 
+  // Log para garantir que as variáveis estão corretas
+  console.log("📱 CallMeBot Config =>", numero, apikey);
+
   const itensTexto = pedido.itens
     .map(i => `${i.nome} x${i.quantidade}`)
     .join(" | ");
@@ -195,8 +198,13 @@ Itens: ${itensTexto}${infoParcelas}`;
 
   fetch(url)
     .then(res => res.text())
-    .then(resposta => console.log("Resposta CallMeBot:", resposta))
-    .catch(err => console.error("Erro ao enviar WhatsApp:", err));
+    .then(resposta => {
+      console.log("✅ CallMeBot resposta:", resposta);
+      if (!resposta.includes("Message Sent")) {
+        console.warn("⚠️ CallMeBot falhou ao enviar:", resposta);
+      }
+    })
+    .catch(err => console.error("❌ Erro ao enviar WhatsApp:", err));
 }
 
 export async function pagamentoWebhook(req, res) {
@@ -370,8 +378,12 @@ async function monitorarTransacaoKlever(pedidoId, hash, pedidosCollection, pedid
 
       if (statusKlever === "success" || statusKlever === "successful" || statusKlever === "confirmed") {
         console.log("Transação confirmada:", hash);
-        await pedidosCollection.doc(pedidoId).update({ status: "a fazer" }); // ou "a fazer" se preferir
-        enviarWhatsAppPedido(pedidoOriginal);
+        await pedidosCollection.doc(pedidoId).update({ status: "a fazer" });
+
+        // Garante que o status enviado ao WhatsApp está atualizado
+        const atualizado = { ...pedidoOriginal, status: "a fazer" };
+        enviarWhatsAppPedido(atualizado);
+
         clearInterval(intervalo);
       }
     } catch (e) {
