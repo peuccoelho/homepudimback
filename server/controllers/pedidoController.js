@@ -265,7 +265,10 @@ export async function statusPedido(req, res) {
     // Checa status e resultCode (pode estar em tx ou tx.data.transaction)
     const kleverTx = tx.data?.transaction || tx;
     const statusKlever = kleverTx.status?.toLowerCase?.();
-    const resultCode = kleverTx.resultCode || kleverTx.data?.resultCode;
+    const resultCode =
+      tx.data?.transaction?.resultCode ||
+      tx.resultCode ||
+      tx.data?.resultCode;
 
     if (
       (statusKlever === "success" || statusKlever === "successful" || statusKlever === "confirmed") &&
@@ -366,13 +369,22 @@ async function monitorarTransacaoKlever(pedidoId, hash, pedidosCollection, pedid
       console.log("🟡 [Klever] Resposta para hash", hash, ":", JSON.stringify(tx));
 
       const statusKlever =
+        tx.data?.transaction?.status?.toLowerCase?.() ||
         tx.status?.toLowerCase?.() ||
         tx.data?.status?.toLowerCase?.() ||
         tx.result?.status?.toLowerCase?.();
 
-      console.log("🔎 statusKlever:", statusKlever);
+      const resultCode =
+        tx.data?.transaction?.resultCode ||
+        tx.resultCode ||
+        tx.data?.resultCode;
 
-      if (statusKlever === "success" || statusKlever === "successful" || statusKlever === "confirmed") {
+      console.log("🔎 statusKlever:", statusKlever, "| resultCode:", resultCode);
+
+      if (
+        (statusKlever === "success" || statusKlever === "successful" || statusKlever === "confirmed") &&
+        (resultCode === "Ok" || resultCode === "ok")
+      ) {
         console.log("✅ Entrou no if success. Vai atualizar status e enviar WhatsApp.");
 
         await pedidosCollection.doc(pedidoId).update({ status: "a fazer" });
